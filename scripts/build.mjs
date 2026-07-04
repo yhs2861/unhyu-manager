@@ -10,8 +10,18 @@ const publicDir = path.join(rootDir, 'public');
 const sourceFiles = [
   'src/main.tsx',
   'src/App.tsx',
-  'src/pages/Input/InputPage.tsx',
+  'src/components/BottomNavigation.tsx',
+  'src/components/DashboardCard.tsx',
+  'src/pages/Home/HomePage.tsx',
+  'src/pages/WorkInput/WorkInputPage.tsx',
+  'src/pages/Calendar/CalendarPage.tsx',
+  'src/pages/Statistics/StatisticsPage.tsx',
+  'src/pages/Settings/SettingsPage.tsx',
   'src/engine/WorkCalculator.ts',
+  'src/storage/LocalStorage.ts',
+  'src/storage/SettingsStorage.ts',
+  'src/types/dailyRecord.ts',
+  'src/types/settings.ts',
   'src/types/work.ts',
 ];
 
@@ -97,6 +107,7 @@ ${moduleEntries}
     if (id === 'react') return reactModule;
     if (id === 'react-dom/client') return reactDomClientModule;
     if (id === 'react/jsx-runtime') return jsxRuntime;
+    if (id === 'react-router-dom') return ReactRouterDOM;
     if (id.endsWith('.css')) return {};
 
     const resolvedId = id.startsWith('.')
@@ -135,6 +146,21 @@ async function build() {
     path.join(rootDir, 'node_modules', 'react-dom', 'umd', 'react-dom.production.min.js'),
     path.join(distDir, 'assets', 'react-dom.production.min.js'),
   );
+  await fs.copyFile(
+    path.join(rootDir, 'node_modules', 'react-router', 'dist', 'umd', 'react-router.production.min.js'),
+    path.join(distDir, 'assets', 'react-router.production.min.js'),
+  );
+  await fs.copyFile(
+    path.join(
+      rootDir,
+      'node_modules',
+      'react-router-dom',
+      'dist',
+      'umd',
+      'react-router-dom.production.min.js',
+    ),
+    path.join(distDir, 'assets', 'react-router-dom.production.min.js'),
+  );
   await copyDirectory(publicDir, distDir);
 
   const html = `<!doctype html>
@@ -157,6 +183,8 @@ async function build() {
     <div id="root"></div>
     <script src="/assets/react.production.min.js"></script>
     <script src="/assets/react-dom.production.min.js"></script>
+    <script src="/assets/react-router.production.min.js"></script>
+    <script src="/assets/react-router-dom.production.min.js"></script>
     <script src="/assets/app.js"></script>
   </body>
 </html>
