@@ -28,6 +28,10 @@ button {
   cursor: pointer;
 }
 
+textarea {
+  font: inherit;
+}
+
 .app-shell {
   width: min(100%, 480px);
   min-height: 100vh;
@@ -242,6 +246,108 @@ h3 {
 .status-paused {
   color: #be123c;
   background: #ffe4e6;
+}
+
+.input-page {
+  display: grid;
+  gap: 16px;
+}
+
+.input-header {
+  padding-top: 4px;
+}
+
+.input-panel {
+  padding: 16px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.input-panel h2,
+.input-panel label {
+  display: block;
+  margin: 0 0 12px;
+  color: #10201d;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.option-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.option-button {
+  min-height: 44px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  color: #334155;
+  background: #f8fafc;
+  font-weight: 800;
+}
+
+.option-button.selected {
+  border-color: #0f766e;
+  color: #ecfeff;
+  background: #0f766e;
+}
+
+.result-panel {
+  padding: 18px;
+  border-radius: 8px;
+  color: #064e3b;
+  background: #d1fae5;
+}
+
+.result-panel p,
+.result-panel span {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.result-panel strong {
+  display: block;
+  margin: 6px 0;
+  font-size: 1.35rem;
+}
+
+.result-negative {
+  color: #9f1239;
+  background: #ffe4e6;
+}
+
+.input-panel textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  padding: 12px;
+  color: #10201d;
+  background: #f8fafc;
+}
+
+.input-panel textarea:focus,
+.option-button:focus-visible,
+.save-button:focus-visible {
+  outline: 3px solid #99f6e4;
+  outline-offset: 2px;
+}
+
+.save-button {
+  min-height: 52px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #0f766e;
+  font-size: 1rem;
+  font-weight: 900;
 }
 
 @media (min-width: 720px) {
