@@ -2,14 +2,7 @@ import DashboardCard from '../../components/DashboardCard';
 import { getRecords } from '../../storage/LocalStorage';
 import { getSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
-
-function getToday() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function getMonthKey(date: string) {
-  return date.slice(0, 7);
-}
+import { monthKey, today } from '../../utils/date';
 
 function formatSignedNumber(value: number) {
   return value > 0 ? `+${value}` : `${value}`;
@@ -26,11 +19,11 @@ function sortRecentRecords(records: DailyRecord[]) {
 function HomePage() {
   const records = getRecords();
   const settings = getSettings();
-  const today = getToday();
-  const currentMonth = getMonthKey(today);
-  const hasTodayRecord = records.some((record) => record.date === today);
+  const todayDate = today();
+  const currentMonth = monthKey(todayDate);
+  const hasTodayRecord = records.some((record) => record.date === todayDate);
   const monthlyChange = records
-    .filter((record) => getMonthKey(record.date) === currentMonth)
+    .filter((record) => monthKey(record.date) === currentMonth)
     .reduce((total, record) => total + record.difference, 0);
   const annualVacation = settings.firstHalfAnnual + settings.secondHalfAnnual;
   const recentRecords = sortRecentRecords(records);
@@ -40,7 +33,7 @@ function HomePage() {
       <section className="home-hero" aria-label="오늘 요약">
         <div>
           <p className="eyebrow">오늘 날짜</p>
-          <h1>{today}</h1>
+          <h1>{todayDate}</h1>
         </div>
         <strong className={hasTodayRecord ? 'today-status done' : 'today-status needed'}>
           {hasTodayRecord ? '🟢 오늘 입력 완료' : '🔴 오늘 입력 필요'}

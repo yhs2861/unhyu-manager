@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { calculate } from '../../engine/WorkCalculator';
 import { getRecordByDate, saveRecord, updateRecord } from '../../storage/LocalStorage';
 import { getSettings, saveSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import type { AppSettings } from '../../types/settings';
 import type { CarWork, ProductWork, VacationType } from '../../types/work';
+import { today } from '../../utils/date';
 
 type Option<T> = {
   label: string;
@@ -31,10 +32,6 @@ const vacationOptions: Option<Exclude<VacationType, 'none'>>[] = [
   { label: '특휴', value: 'special' },
 ];
 
-function getToday() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function createRecordId() {
   if (crypto.randomUUID) {
     return crypto.randomUUID();
@@ -59,9 +56,14 @@ function getResultClassName(difference: number) {
   return 'work-result result-neutral';
 }
 
-function getAnnualTarget(date: string): 'firstHalfAnnual' | 'secondHalfAnnual' {
-  const month = Number(date.slice(5, 7));
+function getAnnualTarget(): 'firstHalfAnnual' | 'secondHalfAnnual' {
+  const month = Number(today().slice(5, 7));
   return month <= 6 ? 'firstHalfAnnual' : 'secondHalfAnnual';
+}
+
+function showTemporaryMessage(message: string, setMessage: (message: string) => void) {
+  setMessage(message);
+  window.setTimeout(() => setMessage(''), 2200);
 }
 
 function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direction: 1 | -1) {
@@ -83,7 +85,7 @@ function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direc
   }
 
   if (record.vacationType === 'ilhyu') {
-    const target = getAnnualTarget(record.date);
+    const target = getAnnualTarget();
     nextSettings[target] -= Math.ceil(requiredVacation) * direction;
   }
 
@@ -94,17 +96,44 @@ function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direc
   return nextSettings;
 }
 
+function validateVacationBalance(settings: AppSettings, record: DailyRecord) {
+  if (record.difference >= 0) {
+    return '';
+  }
+
+  const requiredVacation = Math.abs(record.difference);
+
+  if (record.vacationType === 'unhyu' && settings.currentUnhyu < requiredVacation) {
+    return '운휴가 부족합니다.';
+  }
+
+  if (record.vacationType === 'special' && settings.specialVacation <= 0) {
+    return '특휴가 없습니다.';
+  }
+
+  if (record.vacationType === 'ilhyu') {
+    const target = getAnnualTarget();
+
+    if (settings[target] <= 0) {
+      return '일휴가 없습니다.';
+    }
+  }
+
+  return '';
+}
+
 function WorkInputPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const date = searchParams.get('date') || getToday();
+  const date = searchParams.get('date') || today();
   const [existingRecord, setExistingRecord] = useState<DailyRecord | undefined>(() =>
     getRecordByDate(date),
   );
   const [productWork, setProductWork] = useState<ProductWork>('none');
   const [carWork, setCarWork] = useState<CarWork>('none');
-  const [vacationType, setVacationType] = useState<Exclude<VacationType, 'none'>>('unhyu');
+  const [vacationType, setVacationType] = useState<VacationType>('none');
   const [memo, setMemo] = useState('');
-  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     setExistingRecord(getRecordByDate(date));
@@ -113,18 +142,25 @@ function WorkInputPage() {
   useEffect(() => {
     setProductWork(existingRecord?.productWork ?? 'none');
     setCarWork(existingRecord?.carWork ?? 'none');
-    setVacationType(
-      existingRecord?.vacationType && existingRecord.vacationType !== 'none'
-        ? existingRecord.vacationType
-        : 'unhyu',
-    );
+    setVacationType(existingRecord?.vacationType ?? 'none');
     setMemo(existingRecord?.memo ?? '');
   }, [existingRecord]);
 
   const calculation = useMemo(() => calculate(productWork, carWork), [productWork, carWork]);
   const needsVacation = calculation.difference < 0;
 
+  useEffect(() => {
+    if (!needsVacation) {
+      setVacationType('none');
+    }
+  }, [needsVacation]);
+
   const handleSave = () => {
+    if (needsVacation && vacationType === 'none') {
+      showTemporaryMessage('휴가처리를 선택하세요.', setSnackbarMessage);
+      return;
+    }
+
     const now = new Date().toISOString();
     const record: DailyRecord = {
       id: existingRecord?.id ?? createRecordId(),
@@ -140,23 +176,33 @@ function WorkInputPage() {
       updatedAt: now,
     };
 
+    const currentSettings = getSettings();
+    const revertedSettings = existingRecord
+      ? applyRecordToSettings(currentSettings, existingRecord, -1)
+      : currentSettings;
+    const validationMessage = validateVacationBalance(revertedSettings, record);
+
+    if (validationMessage) {
+      showTemporaryMessage(validationMessage, setSnackbarMessage);
+      return;
+    }
+
+    const nextSettings = applyRecordToSettings(revertedSettings, record, 1);
+
     if (existingRecord) {
       updateRecord(record);
     } else {
       saveRecord(record);
     }
 
-    const currentSettings = getSettings();
-    const revertedSettings = existingRecord
-      ? applyRecordToSettings(currentSettings, existingRecord, -1)
-      : currentSettings;
-    const nextSettings = applyRecordToSettings(revertedSettings, record, 1);
-
     saveSettings(nextSettings);
     setExistingRecord(record);
 
-    setShowSnackbar(true);
-    window.setTimeout(() => setShowSnackbar(false), 2200);
+    setSnackbarMessage('저장되었습니다.');
+    window.setTimeout(() => {
+      setSnackbarMessage('');
+      navigate('/');
+    }, 700);
   };
 
   return (
@@ -245,9 +291,9 @@ function WorkInputPage() {
         저장
       </button>
 
-      {showSnackbar ? (
+      {snackbarMessage ? (
         <div className="snackbar" role="status">
-          저장되었습니다.
+          {snackbarMessage}
         </div>
       ) : null}
     </main>

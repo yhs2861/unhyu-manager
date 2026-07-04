@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecords } from '../../storage/LocalStorage';
+import { today } from '../../utils/date';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -43,9 +44,9 @@ function getCalendarDays(currentMonth: Date): CalendarDay[] {
 function CalendarPage() {
   const navigate = useNavigate();
   const records = getRecords();
-  const today = toDateString(new Date());
+  const todayDate = today();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(todayDate);
   const recordDates = new Set(records.map((record) => record.date));
   const calendarDays = getCalendarDays(currentMonth);
 
@@ -85,7 +86,7 @@ function CalendarPage() {
         <div className="calendar-grid">
           {calendarDays.map((calendarDay) => {
             const hasRecord = recordDates.has(calendarDay.date);
-            const isToday = calendarDay.date === today;
+            const isToday = calendarDay.date === todayDate;
             const isSelected = calendarDay.date === selectedDate;
             const className = [
               'calendar-day',

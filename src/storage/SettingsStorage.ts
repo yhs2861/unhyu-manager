@@ -5,9 +5,9 @@ const STORAGE_KEY = 'unhyu-manager-settings';
 const defaultSettings: AppSettings = {
   carryOverUnhyu: 0,
   currentUnhyu: 0,
-  firstHalfAnnual: 0,
-  secondHalfAnnual: 0,
-  specialVacation: 0,
+  firstHalfAnnual: 6,
+  secondHalfAnnual: 6,
+  specialVacation: 1,
 };
 
 function normalizeSettings(value: Partial<AppSettings>): AppSettings {

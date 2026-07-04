@@ -23,6 +23,7 @@ const sourceFiles = [
   'src/types/dailyRecord.ts',
   'src/types/settings.ts',
   'src/types/work.ts',
+  'src/utils/date.ts',
 ];
 
 function toModuleId(filePath) {
