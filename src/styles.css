@@ -773,6 +773,86 @@ h3 {
   color: #ffffff;
 }
 
+.settings-page {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-header {
+  padding-top: 4px;
+}
+
+.settings-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-field {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.settings-field span {
+  color: #10201d;
+  font-weight: 900;
+}
+
+.settings-field input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #10201d;
+  background: #f8fafc;
+  font: inherit;
+  font-weight: 800;
+}
+
+.settings-field input:focus,
+.settings-save-button:focus-visible,
+.settings-reset-button:focus-visible {
+  outline: 3px solid #99f6e4;
+  outline-offset: 2px;
+}
+
+.settings-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.settings-save-button,
+.settings-reset-button {
+  min-height: 50px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.settings-save-button {
+  border: 0;
+  color: #ffffff;
+  background: #0f766e;
+}
+
+.settings-reset-button {
+  border: 1px solid #dbe7e4;
+  color: #334155;
+  background: #ffffff;
+}
+
+.settings-message {
+  margin: 0;
+  color: #0f766e;
+  font-weight: 900;
+  text-align: center;
+}
+
 @media (min-width: 720px) {
   .app-shell {
     padding-top: 40px;
