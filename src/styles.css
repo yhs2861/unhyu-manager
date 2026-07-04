@@ -138,6 +138,41 @@ h3 {
   font-weight: 800;
 }
 
+.calculation-test {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.calculation-test dl {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.calculation-test dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calculation-test dt,
+.calculation-test dd {
+  margin: 0;
+}
+
+.calculation-test dt {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.calculation-test dd {
+  color: #10201d;
+  font-weight: 800;
+}
+
 .vehicle-section {
   margin-top: 28px;
 }
