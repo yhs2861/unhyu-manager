@@ -25,3 +25,13 @@ npm run build
 ```
 
 빌드 결과물은 `dist` 폴더에 생성됩니다.
+
+## GitHub Pages 배포
+
+배포 전에 GitHub 저장소의 Pages 설정에서 배포 브랜치를 `gh-pages`로 선택하세요.
+
+```bash
+npm run deploy
+```
+
+`npm run deploy`는 빌드 후 `dist` 결과물을 `gh-pages` 브랜치로 배포합니다.

@@ -6,9 +6,13 @@ import SettingsPage from './pages/Settings/SettingsPage';
 import StatisticsPage from './pages/Statistics/StatisticsPage';
 import WorkInputPage from './pages/WorkInput/WorkInputPage';
 
+function getRouterBasename() {
+  return window.location.pathname.startsWith('/unhyu-manager') ? '/unhyu-manager' : '/';
+}
+
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={getRouterBasename()}>
       <div className="app-layout">
         <Routes>
           <Route element={<HomePage />} path="/" />

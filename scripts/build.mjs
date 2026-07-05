@@ -6,6 +6,7 @@ const rootDir = process.cwd();
 const srcDir = path.join(rootDir, 'src');
 const distDir = path.join(rootDir, 'dist');
 const publicDir = path.join(rootDir, 'public');
+const basePath = '/unhyu-manager/';
 
 const sourceFiles = [
   'src/main.tsx',
@@ -176,24 +177,25 @@ async function build() {
       name="description"
       content="운휴매니저는 차량과 장비의 운휴 상태를 빠르게 확인하고 관리하는 모바일 우선 PWA입니다."
     />
-    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="icon" type="image/svg+xml" href="${basePath}icons/icon.svg" />
+    <link rel="apple-touch-icon" href="${basePath}icons/icon-192.svg" />
+    <link rel="manifest" href="${basePath}manifest.webmanifest" />
+    <link rel="stylesheet" href="${basePath}assets/styles.css" />
     <title>운휴매니저</title>
   </head>
   <body>
     <div id="root"></div>
-    <script src="/assets/react.production.min.js"></script>
-    <script src="/assets/react-dom.production.min.js"></script>
-    <script src="/assets/react-router.production.min.js"></script>
-    <script src="/assets/react-router-dom.production.min.js"></script>
-    <script src="/assets/app.js"></script>
+    <script src="${basePath}assets/react.production.min.js"></script>
+    <script src="${basePath}assets/react-dom.production.min.js"></script>
+    <script src="${basePath}assets/react-router.production.min.js"></script>
+    <script src="${basePath}assets/react-router-dom.production.min.js"></script>
+    <script src="${basePath}assets/app.js"></script>
   </body>
 </html>
 `;
 
   await fs.writeFile(path.join(distDir, 'index.html'), html);
+  await fs.writeFile(path.join(distDir, '404.html'), html);
 }
 
 await build();

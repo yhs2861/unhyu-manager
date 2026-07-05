@@ -1,5 +1,6 @@
 node_modules
 .npm-cache
+.deploy-gh-pages
 dist
 dist-ssr
 *.tsbuildinfo

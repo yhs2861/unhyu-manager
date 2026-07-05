@@ -2,10 +2,12 @@
   "name": "unhyu-manager",
   "private": true,
   "version": "0.1.0",
+  "homepage": "https://yhs2861.github.io/unhyu-manager/",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && node scripts/build.mjs",
+    "deploy": "npm run build && node scripts/deploy.mjs",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
