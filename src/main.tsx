@@ -5,7 +5,11 @@ import './styles.css';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register(new URL('sw.js', window.location.href));
+    const basePath = window.location.pathname.startsWith('/unhyu-manager')
+      ? '/unhyu-manager/'
+      : '/';
+
+    navigator.serviceWorker.register(`${basePath}sw.js`);
   });
 }
 

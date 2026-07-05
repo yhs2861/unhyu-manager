@@ -1,4 +1,4 @@
-const CACHE_NAME = 'unhyu-manager-v1';
+const CACHE_NAME = 'unhyu-manager-v2';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const APP_SHELL = [BASE_PATH, `${BASE_PATH}manifest.webmanifest`, `${BASE_PATH}icons/icon.svg`];
 
