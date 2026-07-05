@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecords } from '../../storage/LocalStorage';
+import type { DailyRecord } from '../../types/dailyRecord';
 import { today } from '../../utils/date';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -41,13 +42,25 @@ function getCalendarDays(currentMonth: Date): CalendarDay[] {
   });
 }
 
+function getRecordDot(record: DailyRecord) {
+  if (record.difference > 0) {
+    return '🟢';
+  }
+
+  if (record.difference < 0) {
+    return '🔴';
+  }
+
+  return '⚪';
+}
+
 function CalendarPage() {
   const navigate = useNavigate();
   const records = getRecords();
   const todayDate = today();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState(todayDate);
-  const recordDates = new Set(records.map((record) => record.date));
+  const recordsByDate = new Map(records.map((record) => [record.date, record]));
   const calendarDays = getCalendarDays(currentMonth);
 
   const moveMonth = (monthOffset: number) => {
@@ -85,7 +98,7 @@ function CalendarPage() {
 
         <div className="calendar-grid">
           {calendarDays.map((calendarDay) => {
-            const hasRecord = recordDates.has(calendarDay.date);
+            const record = recordsByDate.get(calendarDay.date);
             const isToday = calendarDay.date === todayDate;
             const isSelected = calendarDay.date === selectedDate;
             const className = [
@@ -105,7 +118,7 @@ function CalendarPage() {
                 onClick={() => handleDateClick(calendarDay.date)}
               >
                 <span>{calendarDay.day}</span>
-                {hasRecord ? <strong aria-label="기록 있음">●</strong> : null}
+                {record ? <strong aria-label="기록 있음">{getRecordDot(record)}</strong> : null}
               </button>
             );
           })}
