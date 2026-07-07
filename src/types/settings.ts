@@ -4,4 +4,6 @@ export interface AppSettings {
   firstHalfAnnual: number;
   secondHalfAnnual: number;
   specialVacation: number;
+  birthdayMonth: number;
+  birthdayDay: number;
 }

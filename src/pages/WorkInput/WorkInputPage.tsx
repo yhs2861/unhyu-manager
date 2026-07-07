@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { calculate } from '../../engine/WorkCalculator';
-import { getRecordByDate, saveRecord, updateRecord } from '../../storage/LocalStorage';
+import { getRecordByDate, getRecords, saveRecord, updateRecord } from '../../storage/LocalStorage';
 import { getSettings, saveSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import type { AppSettings } from '../../types/settings';
 import type { CarWork, ProductWork, VacationType } from '../../types/work';
+import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { today } from '../../utils/date';
 
 type Option<T> = {
@@ -30,6 +31,7 @@ const vacationOptions: Option<Exclude<VacationType, 'none'>>[] = [
   { label: '운휴', value: 'unhyu' },
   { label: '일휴', value: 'ilhyu' },
   { label: '특휴', value: 'special' },
+  { label: '생휴', value: 'birthday' },
 ];
 
 function createRecordId() {
@@ -96,7 +98,11 @@ function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direc
   return nextSettings;
 }
 
-function validateVacationBalance(settings: AppSettings, record: DailyRecord) {
+function validateVacationBalance(
+  settings: AppSettings,
+  record: DailyRecord,
+  records: DailyRecord[],
+) {
   if (record.difference >= 0) {
     return '';
   }
@@ -116,6 +122,16 @@ function validateVacationBalance(settings: AppSettings, record: DailyRecord) {
 
     if (settings[target] <= 0) {
       return '일휴가 없습니다.';
+    }
+  }
+
+  if (record.vacationType === 'birthday') {
+    if (!isBirthdayVacationMonth(settings, record.date)) {
+      return '생휴는 생일이 있는 달에만 사용할 수 있습니다.';
+    }
+
+    if (hasBirthdayVacationRecord(records, record.date, record.id)) {
+      return '이번 달 생휴를 이미 사용했습니다.';
     }
   }
 
@@ -177,10 +193,11 @@ function WorkInputPage() {
     };
 
     const currentSettings = getSettings();
+    const records = getRecords();
     const revertedSettings = existingRecord
       ? applyRecordToSettings(currentSettings, existingRecord, -1)
       : currentSettings;
-    const validationMessage = validateVacationBalance(revertedSettings, record);
+    const validationMessage = validateVacationBalance(revertedSettings, record, records);
 
     if (validationMessage) {
       showTemporaryMessage(validationMessage, setSnackbarMessage);

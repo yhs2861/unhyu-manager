@@ -3,6 +3,7 @@ import DashboardCard from '../../components/DashboardCard';
 import { getRecords } from '../../storage/LocalStorage';
 import { getSettings, saveSettings } from '../../storage/SettingsStorage';
 import { getSummaryByMonth, saveMonthlySummary } from '../../storage/SummaryStorage';
+import { formatBirthdaySetting, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { monthKey, today } from '../../utils/date';
 
 function formatSignedNumber(value: number) {
@@ -10,9 +11,11 @@ function formatSignedNumber(value: number) {
 }
 
 function StatisticsPage() {
-  const currentMonth = monthKey(today());
+  const todayDate = today();
+  const currentMonth = monthKey(todayDate);
   const [closedSummary, setClosedSummary] = useState(() => getSummaryByMonth(currentMonth));
   const monthlyRecords = getRecords().filter((record) => monthKey(record.date) === currentMonth);
+  const settings = getSettings();
   const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const unhyuIncrease = monthlyRecords
@@ -24,6 +27,8 @@ function StatisticsPage() {
       .reduce((total, record) => total + record.difference, 0),
   );
   const netUnhyu = unhyuIncrease - unhyuDecrease;
+  const birthdayVacationUsed = monthlyRecords.some((record) => record.vacationType === 'birthday');
+  const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const isClosed = Boolean(closedSummary);
 
   const handleCloseMonth = () => {
@@ -47,7 +52,6 @@ function StatisticsPage() {
     });
 
     if (netUnhyu > 0) {
-      const settings = getSettings();
       saveSettings({
         ...settings,
         currentUnhyu: settings.currentUnhyu + netUnhyu,
@@ -71,6 +75,11 @@ function StatisticsPage() {
         <DashboardCard title="운휴 증가" value={`+${unhyuIncrease}`} description="difference 양수" />
         <DashboardCard title="운휴 감소" value={`-${unhyuDecrease}`} description="difference 음수" />
         <DashboardCard title="순 운휴" value={formatSignedNumber(netUnhyu)} description="증가 - 감소" />
+        <DashboardCard
+          title="생휴 사용"
+          value={birthdayVacationUsed ? '사용' : '미사용'}
+          description={isBirthdayMonth ? formatBirthdaySetting(settings) : '생일월 아님'}
+        />
       </section>
 
       <section className="month-close-panel" aria-label="월 마감">

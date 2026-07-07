@@ -2,6 +2,11 @@ import DashboardCard from '../../components/DashboardCard';
 import { getRecords } from '../../storage/LocalStorage';
 import { getSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
+import {
+  formatBirthdaySetting,
+  getBirthdayVacationRemaining,
+  isBirthdayVacationMonth,
+} from '../../utils/birthdayVacation';
 import { monthKey, today } from '../../utils/date';
 
 function formatSignedNumber(value: number) {
@@ -26,6 +31,8 @@ function HomePage() {
     .filter((record) => monthKey(record.date) === currentMonth)
     .reduce((total, record) => total + record.difference, 0);
   const annualVacation = settings.firstHalfAnnual + settings.secondHalfAnnual;
+  const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
+  const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);
   const recentRecords = sortRecentRecords(records);
 
   return (
@@ -57,6 +64,13 @@ function HomePage() {
           description={`상반기 ${settings.firstHalfAnnual} / 하반기 ${settings.secondHalfAnnual}`}
         />
         <DashboardCard title="특휴 잔여" value={settings.specialVacation} description="특별휴가" />
+        {isBirthdayMonth ? (
+          <DashboardCard
+            title="생휴 잔여"
+            value={birthdayVacationRemaining}
+            description={formatBirthdaySetting(settings)}
+          />
+        ) : null}
       </section>
 
       <section className="recent-section" aria-label="최근 기록 5개">

@@ -6,6 +6,7 @@ type SettingsField = {
   key: keyof AppSettings;
   label: string;
   step: string;
+  max?: string;
 };
 
 const settingsFields: SettingsField[] = [
@@ -14,6 +15,8 @@ const settingsFields: SettingsField[] = [
   { key: 'firstHalfAnnual', label: '상반기 일휴', step: '1' },
   { key: 'secondHalfAnnual', label: '하반기 일휴', step: '1' },
   { key: 'specialVacation', label: '특휴', step: '1' },
+  { key: 'birthdayMonth', label: '생일 월', step: '1', max: '12' },
+  { key: 'birthdayDay', label: '생일 일', step: '1', max: '31' },
 ];
 
 function SettingsPage() {
@@ -57,6 +60,7 @@ function SettingsPage() {
             <span>{field.label}</span>
             <input
               inputMode="decimal"
+              max={field.max}
               min="0"
               step={field.step}
               type="number"

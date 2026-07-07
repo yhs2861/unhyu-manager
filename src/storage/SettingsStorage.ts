@@ -8,15 +8,28 @@ const defaultSettings: AppSettings = {
   firstHalfAnnual: 6,
   secondHalfAnnual: 6,
   specialVacation: 1,
+  birthdayMonth: 0,
+  birthdayDay: 0,
 };
+
+function normalizeNumber(value: number | undefined, fallback: number) {
+  const numberValue = Number(value ?? fallback);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
 
 function normalizeSettings(value: Partial<AppSettings>): AppSettings {
   return {
-    carryOverUnhyu: Number(value.carryOverUnhyu ?? defaultSettings.carryOverUnhyu),
-    currentUnhyu: Number(value.currentUnhyu ?? defaultSettings.currentUnhyu),
-    firstHalfAnnual: Number(value.firstHalfAnnual ?? defaultSettings.firstHalfAnnual),
-    secondHalfAnnual: Number(value.secondHalfAnnual ?? defaultSettings.secondHalfAnnual),
-    specialVacation: Number(value.specialVacation ?? defaultSettings.specialVacation),
+    carryOverUnhyu: normalizeNumber(value.carryOverUnhyu, defaultSettings.carryOverUnhyu),
+    currentUnhyu: normalizeNumber(value.currentUnhyu, defaultSettings.currentUnhyu),
+    firstHalfAnnual: normalizeNumber(value.firstHalfAnnual, defaultSettings.firstHalfAnnual),
+    secondHalfAnnual: normalizeNumber(value.secondHalfAnnual, defaultSettings.secondHalfAnnual),
+    specialVacation: normalizeNumber(value.specialVacation, defaultSettings.specialVacation),
+    birthdayMonth: clamp(normalizeNumber(value.birthdayMonth, defaultSettings.birthdayMonth), 0, 12),
+    birthdayDay: clamp(normalizeNumber(value.birthdayDay, defaultSettings.birthdayDay), 0, 31),
   };
 }
 
