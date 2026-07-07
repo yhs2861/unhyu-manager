@@ -846,11 +846,102 @@ h3 {
   background: #ffffff;
 }
 
+.settings-setup-button {
+  min-height: 50px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #2563eb;
+  background: #eff6ff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.settings-setup-button:focus-visible {
+  outline: 3px solid #bfdbfe;
+  outline-offset: 2px;
+}
+
 .settings-message {
   margin: 0;
   color: #0f766e;
   font-weight: 900;
   text-align: center;
+}
+
+.setup-page {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+.setup-hero {
+  display: grid;
+  gap: 8px;
+  padding: 22px 20px;
+  border-radius: 8px;
+  color: #ecfeff;
+  background: #0f766e;
+}
+
+.setup-hero .eyebrow,
+.setup-hero p:last-child {
+  margin: 0;
+  color: #c4f1ec;
+}
+
+.setup-hero h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.setup-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.setup-field {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.setup-field span {
+  color: #10201d;
+  font-weight: 900;
+}
+
+.setup-field input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #10201d;
+  background: #f8fafc;
+  font: inherit;
+  font-weight: 800;
+}
+
+.setup-field input:focus,
+.setup-save-button:focus-visible {
+  outline: 3px solid #99f6e4;
+  outline-offset: 2px;
+}
+
+.setup-save-button {
+  position: sticky;
+  bottom: 18px;
+  min-height: 54px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #0f766e;
+  box-shadow: 0 16px 28px rgb(15 118 110 / 24%);
+  font-size: 1.05rem;
+  font-weight: 900;
 }
 
 .statistics-page {

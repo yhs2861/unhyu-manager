@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getSettings, resetSettings, saveSettings } from '../../storage/SettingsStorage';
 import type { AppSettings } from '../../types/settings';
 
+type NumericSettingsKey = Exclude<keyof AppSettings, 'isSetupCompleted'>;
+
 type SettingsField = {
-  key: keyof AppSettings;
+  key: NumericSettingsKey;
   label: string;
   step: string;
   max?: string;
@@ -20,6 +23,7 @@ const settingsFields: SettingsField[] = [
 ];
 
 function SettingsPage() {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<AppSettings>(() => getSettings());
   const [message, setMessage] = useState('');
 
@@ -28,7 +32,7 @@ function SettingsPage() {
     window.setTimeout(() => setMessage(''), 2200);
   };
 
-  const handleChange = (key: keyof AppSettings, value: string) => {
+  const handleChange = (key: NumericSettingsKey, value: string) => {
     setSettings((previousSettings) => ({
       ...previousSettings,
       [key]: Number(value),
@@ -42,9 +46,20 @@ function SettingsPage() {
   };
 
   const handleReset = () => {
-    const defaultSettings = resetSettings();
+    const defaultSettings = saveSettings({
+      ...resetSettings(),
+      isSetupCompleted: true,
+    });
     setSettings(defaultSettings);
     showSavedMessage();
+  };
+
+  const handleRestartSetup = () => {
+    saveSettings({
+      ...settings,
+      isSetupCompleted: false,
+    });
+    navigate('/setup');
   };
 
   return (
@@ -79,6 +94,10 @@ function SettingsPage() {
           초기화
         </button>
       </div>
+
+      <button className="settings-setup-button" type="button" onClick={handleRestartSetup}>
+        초기 설정 다시 하기
+      </button>
 
       {message ? (
         <p className="settings-message" role="status">

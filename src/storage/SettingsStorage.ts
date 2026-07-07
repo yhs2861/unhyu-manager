@@ -3,13 +3,14 @@ import type { AppSettings } from '../types/settings';
 const STORAGE_KEY = 'unhyu-manager-settings';
 
 const defaultSettings: AppSettings = {
+  isSetupCompleted: false,
   carryOverUnhyu: 0,
   currentUnhyu: 0,
   firstHalfAnnual: 6,
   secondHalfAnnual: 6,
   specialVacation: 1,
-  birthdayMonth: 0,
-  birthdayDay: 0,
+  birthdayMonth: 1,
+  birthdayDay: 1,
 };
 
 function normalizeNumber(value: number | undefined, fallback: number) {
@@ -23,6 +24,7 @@ function clamp(value: number, min: number, max: number) {
 
 function normalizeSettings(value: Partial<AppSettings>): AppSettings {
   return {
+    isSetupCompleted: value.isSetupCompleted === true,
     carryOverUnhyu: normalizeNumber(value.carryOverUnhyu, defaultSettings.carryOverUnhyu),
     currentUnhyu: normalizeNumber(value.currentUnhyu, defaultSettings.currentUnhyu),
     firstHalfAnnual: normalizeNumber(value.firstHalfAnnual, defaultSettings.firstHalfAnnual),
