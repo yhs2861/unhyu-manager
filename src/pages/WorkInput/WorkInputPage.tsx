@@ -52,14 +52,14 @@ function formatDifference(difference: number) {
 
 function getResultClassName(difference: number) {
   if (difference > 0) {
-    return 'work-result result-positive';
+    return 'work-result work-result-card result-positive';
   }
 
   if (difference < 0) {
-    return 'work-result result-negative';
+    return 'work-result work-result-card result-negative';
   }
 
-  return 'work-result result-neutral';
+  return 'work-result work-result-card result-neutral';
 }
 
 function showTemporaryMessage(message: string, setMessage: (message: string) => void) {
@@ -257,8 +257,8 @@ function WorkInputPage() {
   };
 
   return (
-    <main className="app-shell work-input-page">
-      <header className="work-input-header">
+    <main className="app-shell work-input-page work-input-v2-page">
+      <header className="work-input-header work-input-v2-header">
         <p className="eyebrow">오늘 입력</p>
         <h1>운휴매니저</h1>
         <p>{date}</p>
@@ -270,50 +270,68 @@ function WorkInputPage() {
         <span>특휴 {settings.specialVacation}</span>
       </section>
 
-      <section className="work-section" aria-labelledby="product-work-title">
-        <h2 id="product-work-title">제품부두</h2>
-        <div className="work-option-grid product-grid">
+      <section className="work-section work-choice-section" aria-labelledby="product-work-title">
+        <div className="work-section-heading">
+          <h2 id="product-work-title">제품부두</h2>
+          <span>근무 형태 선택</span>
+        </div>
+        <div className="work-option-grid product-grid work-card-grid">
           {productOptions.map((option) => (
             <button
               aria-pressed={productWork === option.value}
-              className={productWork === option.value ? 'work-option selected' : 'work-option'}
+              className={
+                productWork === option.value
+                  ? 'work-option work-card-option selected'
+                  : 'work-option work-card-option'
+              }
               key={option.value}
               type="button"
               onClick={() => setProductWork(option.value)}
             >
-              {option.label}
+              <span>{option.label}</span>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="work-section" aria-labelledby="car-work-title">
-        <h2 id="car-work-title">자동차부두</h2>
-        <div className="work-option-grid">
+      <section className="work-section work-choice-section" aria-labelledby="car-work-title">
+        <div className="work-section-heading">
+          <h2 id="car-work-title">자동차부두</h2>
+          <span>{isAbsenceRecord ? '결근 처리 중' : '근무 형태 선택'}</span>
+        </div>
+        <div className="work-option-grid work-card-grid">
           {carOptions.map((option) => (
             <button
               aria-pressed={selectedCarWork === option.value}
-              className={selectedCarWork === option.value ? 'work-option selected' : 'work-option'}
+              className={
+                selectedCarWork === option.value
+                  ? 'work-option work-card-option selected'
+                  : 'work-option work-card-option'
+              }
               disabled={isAbsenceRecord}
               key={option.value}
               type="button"
               onClick={() => setCarWork(option.value)}
             >
-              {option.label}
+              <span>{option.label}</span>
             </button>
           ))}
         </div>
       </section>
 
       {canMarkAbsence ? (
-        <section className="work-section absence-section" aria-labelledby="absence-title">
+        <section className="work-section absence-section absence-card" aria-labelledby="absence-title">
           <div>
             <h2 id="absence-title">결근 처리</h2>
             <p>결근은 휴가를 차감하지 않고 제품부두 합계에서 제외됩니다.</p>
           </div>
           <button
             aria-pressed={isAbsenceRecord}
-            className={isAbsenceRecord ? 'work-option selected' : 'work-option'}
+            className={
+              isAbsenceRecord
+                ? 'work-option work-card-option selected'
+                : 'work-option work-card-option'
+            }
             type="button"
             onClick={() => setAbsence((currentValue) => !currentValue)}
           >
@@ -323,26 +341,46 @@ function WorkInputPage() {
       ) : null}
 
       <section className={getResultClassName(recordCalculation.difference)} aria-live="polite">
-        <p>계산 결과</p>
-        <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
-        <span>
-          제품 {recordCalculation.productPoint} / 자동차 {recordCalculation.carPoint}
-        </span>
+        <div className="work-result-summary">
+          <p>계산 결과</p>
+          <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
+        </div>
+        <dl className="work-result-grid">
+          <div>
+            <dt>제품 점수</dt>
+            <dd>{recordCalculation.productPoint}</dd>
+          </div>
+          <div>
+            <dt>자동차 점수</dt>
+            <dd>{recordCalculation.carPoint}</dd>
+          </div>
+          <div>
+            <dt>운휴 차이</dt>
+            <dd>{isAbsenceRecord ? '0' : formatDifference(recordCalculation.difference)}</dd>
+          </div>
+        </dl>
       </section>
 
       {needsVacation ? (
-        <section className="work-section" aria-labelledby="vacation-title">
-          <h2 id="vacation-title">휴가처리</h2>
-          <div className="work-option-grid">
+        <section className="work-section work-choice-section" aria-labelledby="vacation-title">
+          <div className="work-section-heading">
+            <h2 id="vacation-title">휴가처리</h2>
+            <span>필수 선택</span>
+          </div>
+          <div className="work-option-grid work-card-grid">
             {vacationOptions.map((option) => (
               <button
                 aria-pressed={vacationType === option.value}
-                className={vacationType === option.value ? 'work-option selected' : 'work-option'}
+                className={
+                  vacationType === option.value
+                    ? 'work-option work-card-option selected'
+                    : 'work-option work-card-option'
+                }
                 key={option.value}
                 type="button"
                 onClick={() => setVacationType(option.value)}
               >
-                {option.label}
+                <span>{option.label}</span>
               </button>
             ))}
           </div>
