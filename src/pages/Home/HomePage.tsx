@@ -1,119 +1,148 @@
-import DashboardCard from '../../components/DashboardCard';
+import { useNavigate } from 'react-router-dom';
 import { getRecords } from '../../storage/LocalStorage';
 import { getSettings } from '../../storage/SettingsStorage';
-import type { DailyRecord } from '../../types/dailyRecord';
+import type { CarWork, ProductWork } from '../../types/work';
+import {
+  getCurrentAnnualVacationLabel,
+  getCurrentAnnualVacationRemaining,
+} from '../../utils/annualVacation';
 import {
   formatBirthdaySetting,
   getBirthdayVacationRemaining,
   isBirthdayVacationMonth,
 } from '../../utils/birthdayVacation';
-import {
-  getCurrentAnnualVacationLabel,
-  getCurrentAnnualVacationRemaining,
-} from '../../utils/annualVacation';
 import { monthKey, today } from '../../utils/date';
+
+const productWorkLabels: Record<ProductWork, string> = {
+  none: '없음',
+  day: '주간',
+  night: '야간',
+  dayNight: '주간+야간',
+};
+
+const carWorkLabels: Record<CarWork, string> = {
+  none: '없음',
+  day: '주간',
+  overtime: '연장',
+};
 
 function formatSignedNumber(value: number) {
   return value > 0 ? `+${value}` : `${value}`;
 }
 
-function sortRecentRecords(records: DailyRecord[]) {
-  return [...records]
-    .sort((firstRecord, secondRecord) => {
-      return secondRecord.createdAt.localeCompare(firstRecord.createdAt);
-    })
-    .slice(0, 5);
-}
-
 function HomePage() {
+  const navigate = useNavigate();
   const records = getRecords();
   const settings = getSettings();
   const todayDate = today();
   const currentMonth = monthKey(todayDate);
-  const hasTodayRecord = records.some((record) => record.date === todayDate);
-  const monthlyChange = records
-    .filter((record) => monthKey(record.date) === currentMonth)
-    .reduce((total, record) => total + record.difference, 0);
+  const todayRecord = records.find((record) => record.date === todayDate);
+  const monthlyRecords = records.filter((record) => monthKey(record.date) === currentMonth);
+  const productTotal = monthlyRecords
+    .filter((record) => !record.absence)
+    .reduce((total, record) => total + record.productPoint, 0);
+  const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
+  const absenceCount = monthlyRecords.filter((record) => record.absence).length;
+  const netUnhyu = monthlyRecords.reduce((total, record) => total + record.difference, 0);
   const annualVacation = getCurrentAnnualVacationRemaining(settings, todayDate);
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);
-  const recentRecords = sortRecentRecords(records);
 
   return (
-    <main className="app-shell home-page">
-      <section className="home-hero" aria-label="오늘 요약">
-        <div>
-          <p className="eyebrow">오늘 날짜</p>
-          <h1>{todayDate}</h1>
-        </div>
-        <strong className={hasTodayRecord ? 'today-status done' : 'today-status needed'}>
-          {hasTodayRecord ? '🟢 오늘 입력 완료' : '🔴 오늘 입력 필요'}
-        </strong>
-      </section>
+    <main className="app-shell home-page home-v2-page">
+      <header className="home-v2-header">
+        <p className="eyebrow">운휴매니저</p>
+        <h1>오늘의 운휴</h1>
+        <span>{todayDate}</span>
+      </header>
 
-      <section className="dashboard-grid" aria-label="대시보드 요약">
-        <DashboardCard
-          title="현재 운휴"
-          value={formatSignedNumber(settings.currentUnhyu)}
-          description={`이월 ${formatSignedNumber(settings.carryOverUnhyu)}`}
-        />
-        <DashboardCard
-          title="이번달 운휴 변화"
-          value={formatSignedNumber(monthlyChange)}
-          description={currentMonth}
-        />
-        <DashboardCard
-          title="일휴"
-          value={annualVacation}
-          description={getCurrentAnnualVacationLabel(todayDate)}
-        />
-        <DashboardCard title="특휴 잔여" value={settings.specialVacation} description="특별휴가" />
-        {isBirthdayMonth ? (
-          <DashboardCard
-            title="생휴 잔여"
-            value={birthdayVacationRemaining}
-            description={formatBirthdaySetting(settings)}
-          />
-        ) : null}
-      </section>
+      <button
+        className="home-card home-primary-card"
+        type="button"
+        onClick={() => navigate('/statistics')}
+      >
+        <span className="home-card-label">현재 운휴</span>
+        <strong>{settings.currentUnhyu}일</strong>
+        <span>이월 {formatSignedNumber(settings.carryOverUnhyu)}일 포함</span>
+      </button>
 
-      <section className="recent-section" aria-label="최근 기록 5개">
-        <div className="section-heading">
-          <h2>최근 기록 5개</h2>
-        </div>
-
-        {recentRecords.length > 0 ? (
-          <div className="recent-list">
-            {recentRecords.map((record) => (
-              <article className="recent-record" key={record.id}>
-                <div>
-                  <h3>{record.date}</h3>
-                  <p>
-                    {record.absence
-                      ? `결근 / 제품 ${record.productPoint} 제외`
-                      : `제품 ${record.productPoint} / 자동차 ${record.carPoint}`}
-                  </p>
-                </div>
-                <strong
-                  className={
-                    record.absence
-                      ? 'text-negative'
-                      : record.difference > 0
-                        ? 'text-positive'
-                        : record.difference < 0
-                          ? 'text-negative'
-                          : 'text-neutral'
-                  }
-                >
-                  {record.absence ? '결근' : formatSignedNumber(record.difference)}
-                </strong>
-              </article>
-            ))}
-          </div>
+      <button
+        className={todayRecord ? 'home-card home-today-card complete' : 'home-card home-today-card missing'}
+        type="button"
+        onClick={() => navigate(`/input?date=${todayDate}`)}
+      >
+        <span className="home-card-label">오늘 입력</span>
+        {todayRecord ? (
+          <>
+            <strong>입력 완료</strong>
+            <dl>
+              <div>
+                <dt>제품</dt>
+                <dd>{productWorkLabels[todayRecord.productWork]}</dd>
+              </div>
+              <div>
+                <dt>자동차</dt>
+                <dd>{todayRecord.absence ? '결근' : carWorkLabels[todayRecord.carWork]}</dd>
+              </div>
+            </dl>
+            <span className="home-card-action">기록 수정</span>
+          </>
         ) : (
-          <p className="empty-message">아직 저장된 기록이 없습니다.</p>
+          <>
+            <strong>오늘 입력이 없습니다.</strong>
+            <span className="home-card-action">입력하기</span>
+          </>
         )}
-      </section>
+      </button>
+
+      <button className="home-card home-month-card" type="button" onClick={() => navigate('/statistics')}>
+        <span className="home-card-label">이번 달</span>
+        <strong>{currentMonth}</strong>
+        <dl className="home-metric-grid">
+          <div>
+            <dt>제품</dt>
+            <dd>{productTotal}</dd>
+          </div>
+          <div>
+            <dt>자동차</dt>
+            <dd>{carTotal}</dd>
+          </div>
+          <div>
+            <dt>결근</dt>
+            <dd>{absenceCount}회</dd>
+          </div>
+          <div>
+            <dt>순 운휴</dt>
+            <dd>{formatSignedNumber(netUnhyu)}</dd>
+          </div>
+        </dl>
+      </button>
+
+      <button className="home-card home-vacation-card" type="button" onClick={() => navigate('/settings')}>
+        <span className="home-card-label">휴가 현황</span>
+        <strong>잔여 휴가</strong>
+        <dl className="home-metric-grid">
+          <div>
+            <dt>운휴</dt>
+            <dd>{settings.currentUnhyu}</dd>
+          </div>
+          <div>
+            <dt>일휴</dt>
+            <dd>{annualVacation}</dd>
+          </div>
+          <div>
+            <dt>특휴</dt>
+            <dd>{settings.specialVacation}</dd>
+          </div>
+          <div>
+            <dt>생휴</dt>
+            <dd>{isBirthdayMonth ? birthdayVacationRemaining : 0}</dd>
+          </div>
+        </dl>
+        <span>
+          일휴 {getCurrentAnnualVacationLabel(todayDate)} / 생휴 {formatBirthdaySetting(settings)}
+        </span>
+      </button>
     </main>
   );
 }
