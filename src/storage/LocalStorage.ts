@@ -29,6 +29,13 @@ function writeRecords(records: DailyRecord[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 }
 
+function normalizeRecords(records: DailyRecord[]) {
+  return records.map((record) => ({
+    ...record,
+    absence: record.absence === true,
+  }));
+}
+
 export function saveRecord(record: DailyRecord) {
   const records = readRecords();
   writeRecords([...records, record]);
@@ -56,4 +63,10 @@ export function updateRecord(record: DailyRecord) {
 export function deleteRecord(id: string) {
   const records = readRecords();
   writeRecords(records.filter((record) => record.id !== id));
+}
+
+export function replaceRecords(records: DailyRecord[]) {
+  const nextRecords = normalizeRecords(records);
+  writeRecords(nextRecords);
+  return nextRecords;
 }

@@ -1254,6 +1254,74 @@ h3 {
   outline-offset: 2px;
 }
 
+.data-management-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 8%),
+    0 10px 24px rgb(15 23 42 / 9%);
+}
+
+.data-management-card span,
+.data-management-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.data-management-card strong {
+  display: block;
+  margin: 6px 0;
+  color: #10201d;
+  font-size: 1.25rem;
+  line-height: 1.15;
+}
+
+.data-management-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.data-management-actions button {
+  min-height: 52px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.data-management-actions button:first-child {
+  border: 0;
+  color: #ffffff;
+  background: #0f766e;
+}
+
+.data-management-actions button:last-child {
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.data-management-actions button:focus-visible {
+  outline: 3px solid #bfdbfe;
+  outline-offset: 2px;
+}
+
+.visually-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
 .settings-message {
   margin: 0;
   color: #0f766e;

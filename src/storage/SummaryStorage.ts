@@ -39,3 +39,8 @@ export function saveMonthlySummary(summary: MonthlySummary) {
   writeSummaries([...summaries, summary]);
   return summary;
 }
+
+export function replaceSummaries(summaries: MonthlySummary[]) {
+  writeSummaries(summaries);
+  return summaries;
+}

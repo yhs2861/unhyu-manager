@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getRecords, replaceRecords } from '../../storage/LocalStorage';
 import { getSettings, resetSettings, saveSettings } from '../../storage/SettingsStorage';
+import { getSummaries, replaceSummaries } from '../../storage/SummaryStorage';
+import type { DailyRecord } from '../../types/dailyRecord';
+import type { MonthlySummary } from '../../types/monthlySummary';
 import type { AppSettings } from '../../types/settings';
 import {
   getCurrentAnnualVacationLabel,
   getCurrentAnnualVacationRemaining,
 } from '../../utils/annualVacation';
+import { today } from '../../utils/date';
 
 type NumericSettingsKey = Exclude<keyof AppSettings, 'isSetupCompleted'>;
 
@@ -26,14 +31,44 @@ const settingsFields: SettingsField[] = [
   { key: 'birthdayDay', label: '생일 일', step: '1', max: '31' },
 ];
 
+type BackupFile = {
+  version: string;
+  exportedAt: string;
+  settings: AppSettings;
+  records: DailyRecord[];
+  summary: MonthlySummary[];
+};
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isBackupFile(value: unknown): value is BackupFile {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  return (
+    Boolean(value.version) &&
+    isObject(value.settings) &&
+    Array.isArray(value.records) &&
+    Array.isArray(value.summary)
+  );
+}
+
 function SettingsPage() {
   const navigate = useNavigate();
+  const restoreInputRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState<AppSettings>(() => getSettings());
   const [message, setMessage] = useState('');
 
-  const showSavedMessage = () => {
-    setMessage('저장되었습니다.');
+  const showMessage = (nextMessage: string) => {
+    setMessage(nextMessage);
     window.setTimeout(() => setMessage(''), 2200);
+  };
+
+  const showSavedMessage = () => {
+    showMessage('저장되었습니다.');
   };
 
   const handleChange = (key: NumericSettingsKey, value: string) => {
@@ -64,6 +99,62 @@ function SettingsPage() {
       isSetupCompleted: false,
     });
     navigate('/setup');
+  };
+
+  const handleBackup = () => {
+    const backup: BackupFile = {
+      version: '2.0.0',
+      exportedAt: new Date().toISOString(),
+      settings: getSettings(),
+      records: getRecords(),
+      summary: getSummaries(),
+    };
+    const backupJson = JSON.stringify(backup, null, 2);
+    const blob = new Blob([backupJson], { type: 'application/json' });
+    const downloadUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement('a');
+
+    downloadLink.href = downloadUrl;
+    downloadLink.download = `unhyu-manager-backup-${today()}.json`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+    URL.revokeObjectURL(downloadUrl);
+    showMessage('백업 파일을 만들었습니다.');
+  };
+
+  const handleRestoreClick = () => {
+    restoreInputRef.current?.click();
+  };
+
+  const handleRestoreFile = async (file: File) => {
+    try {
+      const backup = JSON.parse(await file.text());
+
+      if (!isBackupFile(backup)) {
+        showMessage('올바른 백업 파일이 아닙니다.');
+        return;
+      }
+
+      const shouldRestore = window.confirm(
+        '기존 데이터가 모두 백업 파일 내용으로 교체됩니다. 복원하시겠습니까?',
+      );
+
+      if (!shouldRestore) {
+        return;
+      }
+
+      const restoredSettings = saveSettings(backup.settings);
+      replaceRecords(backup.records);
+      replaceSummaries(backup.summary);
+      setSettings(restoredSettings);
+      setMessage('복원이 완료되었습니다.');
+      window.setTimeout(() => {
+        navigate('/');
+      }, 700);
+    } catch {
+      showMessage('올바른 백업 파일이 아닙니다.');
+    }
   };
 
   return (
@@ -108,6 +199,36 @@ function SettingsPage() {
       <button className="settings-setup-button" type="button" onClick={handleRestartSetup}>
         초기 설정 다시 하기
       </button>
+
+      <section className="data-management-card" aria-label="데이터 관리">
+        <div>
+          <span>데이터 관리</span>
+          <strong>백업 / 복원</strong>
+          <p>설정, 근무 기록, 월별 마감 기록을 JSON 파일로 보관합니다.</p>
+        </div>
+        <div className="data-management-actions">
+          <button type="button" onClick={handleBackup}>
+            백업
+          </button>
+          <button type="button" onClick={handleRestoreClick}>
+            복원
+          </button>
+        </div>
+        <input
+          ref={restoreInputRef}
+          accept="application/json,.json"
+          className="visually-hidden-input"
+          type="file"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+
+            if (file) {
+              void handleRestoreFile(file);
+            }
+          }}
+        />
+      </section>
 
       {message ? (
         <p className="settings-message" role="status">
