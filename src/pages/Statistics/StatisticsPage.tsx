@@ -3,6 +3,10 @@ import DashboardCard from '../../components/DashboardCard';
 import { getRecords } from '../../storage/LocalStorage';
 import { getSettings, saveSettings } from '../../storage/SettingsStorage';
 import { getSummaryByMonth, saveMonthlySummary } from '../../storage/SummaryStorage';
+import {
+  getCurrentAnnualVacationLabel,
+  getCurrentAnnualVacationRemaining,
+} from '../../utils/annualVacation';
 import { formatBirthdaySetting, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { monthKey, today } from '../../utils/date';
 
@@ -16,8 +20,15 @@ function StatisticsPage() {
   const [closedSummary, setClosedSummary] = useState(() => getSummaryByMonth(currentMonth));
   const monthlyRecords = getRecords().filter((record) => monthKey(record.date) === currentMonth);
   const settings = getSettings();
-  const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
+  const productTotal = monthlyRecords
+    .filter((record) => !record.absence)
+    .reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
+  const absenceRecords = monthlyRecords.filter((record) => record.absence);
+  const absenceDeductionDays = absenceRecords.reduce(
+    (total, record) => total + record.productPoint,
+    0,
+  );
   const unhyuIncrease = monthlyRecords
     .filter((record) => record.difference > 0)
     .reduce((total, record) => total + record.difference, 0);
@@ -27,6 +38,8 @@ function StatisticsPage() {
       .reduce((total, record) => total + record.difference, 0),
   );
   const netUnhyu = unhyuIncrease - unhyuDecrease;
+  const annualVacationRemaining = getCurrentAnnualVacationRemaining(settings, todayDate);
+  const annualVacationUsed = Math.max(0, 6 - annualVacationRemaining);
   const birthdayVacationUsed = monthlyRecords.some((record) => record.vacationType === 'birthday');
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const isClosed = Boolean(closedSummary);
@@ -75,6 +88,22 @@ function StatisticsPage() {
         <DashboardCard title="운휴 증가" value={`+${unhyuIncrease}`} description="difference 양수" />
         <DashboardCard title="운휴 감소" value={`-${unhyuDecrease}`} description="difference 음수" />
         <DashboardCard title="순 운휴" value={formatSignedNumber(netUnhyu)} description="증가 - 감소" />
+        <DashboardCard
+          title="일휴 사용"
+          value={annualVacationUsed}
+          description={getCurrentAnnualVacationLabel(todayDate)}
+        />
+        <DashboardCard
+          title="일휴 잔여"
+          value={`일휴 ${annualVacationRemaining}`}
+          description={getCurrentAnnualVacationLabel(todayDate)}
+        />
+        <DashboardCard title="결근 횟수" value={absenceRecords.length} description="결근 처리 기록" />
+        <DashboardCard
+          title="결근 차감일수"
+          value={absenceDeductionDays}
+          description="제품 합계 제외"
+        />
         <DashboardCard
           title="생휴 사용"
           value={birthdayVacationUsed ? '사용' : '미사용'}

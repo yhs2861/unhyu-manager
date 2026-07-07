@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSettings, resetSettings, saveSettings } from '../../storage/SettingsStorage';
 import type { AppSettings } from '../../types/settings';
+import {
+  getCurrentAnnualVacationLabel,
+  getCurrentAnnualVacationRemaining,
+} from '../../utils/annualVacation';
 
 type NumericSettingsKey = Exclude<keyof AppSettings, 'isSetupCompleted'>;
 
@@ -68,6 +72,12 @@ function SettingsPage() {
         <p className="eyebrow">휴가 설정</p>
         <h1>설정</h1>
       </header>
+
+      <section className="settings-current-annual" aria-label="현재 기간 일휴">
+        <span>현재 기간 일휴</span>
+        <strong>일휴 {getCurrentAnnualVacationRemaining(settings)}</strong>
+        <p>{getCurrentAnnualVacationLabel()}</p>
+      </section>
 
       <section className="settings-panel" aria-label="휴가 설정 입력">
         {settingsFields.map((field) => (

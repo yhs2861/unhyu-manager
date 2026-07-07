@@ -7,6 +7,10 @@ import {
   getBirthdayVacationRemaining,
   isBirthdayVacationMonth,
 } from '../../utils/birthdayVacation';
+import {
+  getCurrentAnnualVacationLabel,
+  getCurrentAnnualVacationRemaining,
+} from '../../utils/annualVacation';
 import { monthKey, today } from '../../utils/date';
 
 function formatSignedNumber(value: number) {
@@ -30,7 +34,7 @@ function HomePage() {
   const monthlyChange = records
     .filter((record) => monthKey(record.date) === currentMonth)
     .reduce((total, record) => total + record.difference, 0);
-  const annualVacation = settings.firstHalfAnnual + settings.secondHalfAnnual;
+  const annualVacation = getCurrentAnnualVacationRemaining(settings, todayDate);
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);
   const recentRecords = sortRecentRecords(records);
@@ -59,9 +63,9 @@ function HomePage() {
           description={currentMonth}
         />
         <DashboardCard
-          title="일휴 잔여"
+          title="일휴"
           value={annualVacation}
-          description={`상반기 ${settings.firstHalfAnnual} / 하반기 ${settings.secondHalfAnnual}`}
+          description={getCurrentAnnualVacationLabel(todayDate)}
         />
         <DashboardCard title="특휴 잔여" value={settings.specialVacation} description="특별휴가" />
         {isBirthdayMonth ? (
@@ -85,11 +89,23 @@ function HomePage() {
                 <div>
                   <h3>{record.date}</h3>
                   <p>
-                    제품 {record.productPoint} / 자동차 {record.carPoint}
+                    {record.absence
+                      ? `결근 / 제품 ${record.productPoint} 제외`
+                      : `제품 ${record.productPoint} / 자동차 ${record.carPoint}`}
                   </p>
                 </div>
-                <strong className={record.difference > 0 ? 'text-positive' : record.difference < 0 ? 'text-negative' : 'text-neutral'}>
-                  {formatSignedNumber(record.difference)}
+                <strong
+                  className={
+                    record.absence
+                      ? 'text-negative'
+                      : record.difference > 0
+                        ? 'text-positive'
+                        : record.difference < 0
+                          ? 'text-negative'
+                          : 'text-neutral'
+                  }
+                >
+                  {record.absence ? '결근' : formatSignedNumber(record.difference)}
                 </strong>
               </article>
             ))}

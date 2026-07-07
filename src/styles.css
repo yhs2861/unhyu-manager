@@ -517,6 +517,24 @@ h3 {
   font-weight: 700;
 }
 
+.vacation-balance-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.vacation-balance-strip span {
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dbe7e4;
+  border-radius: 8px;
+  color: #0f766e;
+  background: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
 .work-section {
   padding: 16px;
   border: 1px solid #dbe7e4;
@@ -556,6 +574,25 @@ h3 {
   border-color: #0f766e;
   color: #ffffff;
   background: #0f766e;
+}
+
+.work-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.absence-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.absence-section p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.35;
 }
 
 .work-result {
@@ -785,6 +822,29 @@ h3 {
 .settings-panel {
   display: grid;
   gap: 10px;
+}
+
+.settings-current-annual {
+  padding: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.settings-current-annual span,
+.settings-current-annual p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.settings-current-annual strong {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: 1.45rem;
+  line-height: 1.1;
 }
 
 .settings-field {

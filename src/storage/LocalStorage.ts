@@ -10,8 +10,16 @@ function readRecords(): DailyRecord[] {
   }
 
   try {
-    const parsedValue = JSON.parse(storedValue);
-    return Array.isArray(parsedValue) ? parsedValue : [];
+      const parsedValue = JSON.parse(storedValue);
+
+      if (!Array.isArray(parsedValue)) {
+        return [];
+      }
+
+      return parsedValue.map((record) => ({
+        ...record,
+        absence: record.absence === true,
+      }));
   } catch {
     return [];
   }

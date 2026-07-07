@@ -43,6 +43,10 @@ function getCalendarDays(currentMonth: Date): CalendarDay[] {
 }
 
 function getRecordDot(record: DailyRecord) {
+  if (record.absence) {
+    return '결근';
+  }
+
   if (record.difference > 0) {
     return '🟢';
   }
@@ -118,7 +122,11 @@ function CalendarPage() {
                 onClick={() => handleDateClick(calendarDay.date)}
               >
                 <span>{calendarDay.day}</span>
-                {record ? <strong aria-label="기록 있음">{getRecordDot(record)}</strong> : null}
+                {record ? (
+                  <strong aria-label={record.absence ? '결근 기록' : '기록 있음'}>
+                    {getRecordDot(record)}
+                  </strong>
+                ) : null}
               </button>
             );
           })}

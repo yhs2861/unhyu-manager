@@ -6,6 +6,10 @@ import { getSettings, saveSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import type { AppSettings } from '../../types/settings';
 import type { CarWork, ProductWork, VacationType } from '../../types/work';
+import {
+  getCurrentAnnualVacationRemaining,
+  getCurrentAnnualVacationTarget,
+} from '../../utils/annualVacation';
 import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { today } from '../../utils/date';
 
@@ -58,11 +62,6 @@ function getResultClassName(difference: number) {
   return 'work-result result-neutral';
 }
 
-function getAnnualTarget(): 'firstHalfAnnual' | 'secondHalfAnnual' {
-  const month = Number(today().slice(5, 7));
-  return month <= 6 ? 'firstHalfAnnual' : 'secondHalfAnnual';
-}
-
 function showTemporaryMessage(message: string, setMessage: (message: string) => void) {
   setMessage(message);
   window.setTimeout(() => setMessage(''), 2200);
@@ -70,6 +69,10 @@ function showTemporaryMessage(message: string, setMessage: (message: string) => 
 
 function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direction: 1 | -1) {
   const nextSettings = { ...settings };
+
+  if (record.absence) {
+    return nextSettings;
+  }
 
   if (record.difference > 0) {
     nextSettings.currentUnhyu += record.difference * direction;
@@ -87,7 +90,7 @@ function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direc
   }
 
   if (record.vacationType === 'ilhyu') {
-    const target = getAnnualTarget();
+    const target = getCurrentAnnualVacationTarget();
     nextSettings[target] -= Math.ceil(requiredVacation) * direction;
   }
 
@@ -103,7 +106,7 @@ function validateVacationBalance(
   record: DailyRecord,
   records: DailyRecord[],
 ) {
-  if (record.difference >= 0) {
+  if (record.absence || record.difference >= 0) {
     return '';
   }
 
@@ -118,7 +121,7 @@ function validateVacationBalance(
   }
 
   if (record.vacationType === 'ilhyu') {
-    const target = getAnnualTarget();
+    const target = getCurrentAnnualVacationTarget();
 
     if (settings[target] <= 0) {
       return '일휴가 없습니다.';
@@ -147,6 +150,7 @@ function WorkInputPage() {
   );
   const [productWork, setProductWork] = useState<ProductWork>('none');
   const [carWork, setCarWork] = useState<CarWork>('none');
+  const [absence, setAbsence] = useState(false);
   const [vacationType, setVacationType] = useState<VacationType>('none');
   const [memo, setMemo] = useState('');
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -158,18 +162,47 @@ function WorkInputPage() {
   useEffect(() => {
     setProductWork(existingRecord?.productWork ?? 'none');
     setCarWork(existingRecord?.carWork ?? 'none');
+    setAbsence(existingRecord?.absence ?? false);
     setVacationType(existingRecord?.vacationType ?? 'none');
     setMemo(existingRecord?.memo ?? '');
   }, [existingRecord]);
 
-  const calculation = useMemo(() => calculate(productWork, carWork), [productWork, carWork]);
-  const needsVacation = calculation.difference < 0;
+  const settings = getSettings();
+  const canMarkAbsence = productWork !== 'none';
+  const isAbsenceRecord = absence && canMarkAbsence;
+  const selectedCarWork = isAbsenceRecord ? 'none' : carWork;
+  const calculation = useMemo(
+    () => calculate(productWork, selectedCarWork),
+    [productWork, selectedCarWork],
+  );
+  const recordCalculation = isAbsenceRecord
+    ? {
+        productPoint: calculate(productWork, 'none').productPoint,
+        carPoint: 0,
+        difference: 0,
+      }
+    : calculation;
+  const needsVacation = !isAbsenceRecord && recordCalculation.difference < 0;
+  const currentAnnualVacation = getCurrentAnnualVacationRemaining(settings);
 
   useEffect(() => {
     if (!needsVacation) {
       setVacationType('none');
     }
   }, [needsVacation]);
+
+  useEffect(() => {
+    if (isAbsenceRecord) {
+      setCarWork('none');
+      setVacationType('none');
+    }
+  }, [isAbsenceRecord]);
+
+  useEffect(() => {
+    if (!canMarkAbsence) {
+      setAbsence(false);
+    }
+  }, [canMarkAbsence]);
 
   const handleSave = () => {
     if (needsVacation && vacationType === 'none') {
@@ -182,10 +215,11 @@ function WorkInputPage() {
       id: existingRecord?.id ?? createRecordId(),
       date,
       productWork,
-      carWork,
-      productPoint: calculation.productPoint,
-      carPoint: calculation.carPoint,
-      difference: calculation.difference,
+      carWork: isAbsenceRecord ? 'none' : carWork,
+      productPoint: recordCalculation.productPoint,
+      carPoint: recordCalculation.carPoint,
+      difference: recordCalculation.difference,
+      absence: isAbsenceRecord,
       vacationType: needsVacation ? vacationType : 'none',
       memo,
       createdAt: existingRecord?.createdAt ?? now,
@@ -230,6 +264,12 @@ function WorkInputPage() {
         <p>{date}</p>
       </header>
 
+      <section className="vacation-balance-strip" aria-label="잔여 휴가">
+        <span>운휴 {settings.currentUnhyu}</span>
+        <span>일휴 {currentAnnualVacation}</span>
+        <span>특휴 {settings.specialVacation}</span>
+      </section>
+
       <section className="work-section" aria-labelledby="product-work-title">
         <h2 id="product-work-title">제품부두</h2>
         <div className="work-option-grid product-grid">
@@ -252,8 +292,9 @@ function WorkInputPage() {
         <div className="work-option-grid">
           {carOptions.map((option) => (
             <button
-              aria-pressed={carWork === option.value}
-              className={carWork === option.value ? 'work-option selected' : 'work-option'}
+              aria-pressed={selectedCarWork === option.value}
+              className={selectedCarWork === option.value ? 'work-option selected' : 'work-option'}
+              disabled={isAbsenceRecord}
               key={option.value}
               type="button"
               onClick={() => setCarWork(option.value)}
@@ -264,11 +305,28 @@ function WorkInputPage() {
         </div>
       </section>
 
-      <section className={getResultClassName(calculation.difference)} aria-live="polite">
+      {canMarkAbsence ? (
+        <section className="work-section absence-section" aria-labelledby="absence-title">
+          <div>
+            <h2 id="absence-title">결근 처리</h2>
+            <p>결근은 휴가를 차감하지 않고 제품부두 합계에서 제외됩니다.</p>
+          </div>
+          <button
+            aria-pressed={isAbsenceRecord}
+            className={isAbsenceRecord ? 'work-option selected' : 'work-option'}
+            type="button"
+            onClick={() => setAbsence((currentValue) => !currentValue)}
+          >
+            결근 처리
+          </button>
+        </section>
+      ) : null}
+
+      <section className={getResultClassName(recordCalculation.difference)} aria-live="polite">
         <p>계산 결과</p>
-        <strong>{formatDifference(calculation.difference)}</strong>
+        <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
         <span>
-          제품 {calculation.productPoint} / 자동차 {calculation.carPoint}
+          제품 {recordCalculation.productPoint} / 자동차 {recordCalculation.carPoint}
         </span>
       </section>
 
