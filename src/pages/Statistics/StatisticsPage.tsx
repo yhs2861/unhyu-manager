@@ -142,7 +142,6 @@ function StatisticsPage() {
     <main className="app-shell statistics-page statistics-v2-page">
       <MonthNavigator
         helperText={`${monthlyRecords.length}개 기록 기준`}
-        icon="📊"
         isPickerOpen={isMonthPickerOpen}
         label="월 통계"
         month={selectedMonthNumber}

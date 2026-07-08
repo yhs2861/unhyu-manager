@@ -12,6 +12,7 @@ import {
   isBirthdayVacationMonth,
 } from '../../utils/birthdayVacation';
 import { formatDateWithWeekday, monthKey, today } from '../../utils/date';
+import { getTotalUnhyu } from '../../utils/unhyu';
 
 const productWorkLabels: Record<ProductWork, string> = {
   none: '없음',
@@ -62,6 +63,7 @@ function HomePage() {
   const currentMonth = monthKey(todayDate);
   const todayRecord = records.find((record) => record.date === todayDate);
   const monthlyRecords = records.filter((record) => monthKey(record.date) === currentMonth);
+  const totalUnhyu = getTotalUnhyu(settings);
   const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const absenceCount = monthlyRecords.filter((record) => record.absence).length;
@@ -102,8 +104,8 @@ function HomePage() {
           🗓️
         </span>
         <span className="home-card-content">
-          <span className="home-card-label">현재 운휴</span>
-          <strong>{formatDayValue(settings.currentUnhyu)}</strong>
+          <span className="home-card-label">총 운휴</span>
+          <strong>{formatDayValue(totalUnhyu)}</strong>
           <span>이월 {formatSignedDayValue(settings.carryOverUnhyu)} 포함</span>
         </span>
       </button>
@@ -190,7 +192,7 @@ function HomePage() {
         <dl className="home-vacation-grid">
           <div>
             <dt>운휴</dt>
-            <dd>{formatDayValue(settings.currentUnhyu)}</dd>
+            <dd>{formatDayValue(totalUnhyu)}</dd>
           </div>
           <div>
             <dt>일휴</dt>

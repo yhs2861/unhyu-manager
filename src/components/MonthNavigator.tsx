@@ -2,7 +2,6 @@ import { formatKoreanMonth } from '../utils/date';
 
 type MonthNavigatorProps = {
   helperText?: string;
-  icon: string;
   isPickerOpen: boolean;
   label: string;
   month: number;
@@ -18,7 +17,6 @@ type MonthNavigatorProps = {
 
 function MonthNavigator({
   helperText,
-  icon,
   isPickerOpen,
   label,
   month,
@@ -33,9 +31,6 @@ function MonthNavigator({
 }: MonthNavigatorProps) {
   return (
     <section className="month-navigator-card" aria-label={`${label} 월 이동`}>
-      <span className="section-icon-badge month-navigator-icon" aria-hidden="true">
-        {icon}
-      </span>
       <div className="month-navigator-main">
         <button
           className="month-nav-arrow"

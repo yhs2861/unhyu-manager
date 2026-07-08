@@ -12,6 +12,7 @@ import {
 } from '../../utils/annualVacation';
 import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { addDays, formatDateWithWeekday, today } from '../../utils/date';
+import { getTotalUnhyu } from '../../utils/unhyu';
 
 type Option<T> = {
   icon?: string;
@@ -113,7 +114,7 @@ function validateVacationBalance(
 
   const requiredVacation = Math.abs(record.difference);
 
-  if (record.vacationType === 'unhyu' && settings.currentUnhyu < requiredVacation) {
+  if (record.vacationType === 'unhyu' && getTotalUnhyu(settings) < requiredVacation) {
     return '운휴가 부족합니다.';
   }
 
@@ -183,8 +184,15 @@ function WorkInputPage() {
         difference: 0,
       }
     : calculation;
-  const needsVacation = !isAbsenceRecord && recordCalculation.difference < 0;
+  const isAutomaticUnhyuDeduction =
+    !isAbsenceRecord &&
+    productWork === 'dayNight' &&
+    (selectedCarWork === 'day' || selectedCarWork === 'overtime') &&
+    recordCalculation.difference < 0;
+  const needsVacation =
+    !isAbsenceRecord && recordCalculation.difference < 0 && !isAutomaticUnhyuDeduction;
   const currentAnnualVacation = getCurrentAnnualVacationRemaining(settings);
+  const totalUnhyu = getTotalUnhyu(settings);
   const navigateToDate = (nextDate: string) => {
     navigate(`/input?date=${nextDate}`);
   };
@@ -224,7 +232,7 @@ function WorkInputPage() {
       carPoint: recordCalculation.carPoint,
       difference: recordCalculation.difference,
       absence: isAbsenceRecord,
-      vacationType: needsVacation ? vacationType : 'none',
+      vacationType: needsVacation ? vacationType : isAutomaticUnhyuDeduction ? 'unhyu' : 'none',
       memo,
       createdAt: existingRecord?.createdAt ?? now,
       updatedAt: now,
@@ -294,7 +302,7 @@ function WorkInputPage() {
       </section>
 
       <section className="vacation-balance-strip" aria-label="잔여 휴가">
-        <span>운휴 {settings.currentUnhyu}</span>
+        <span>운휴 {totalUnhyu}</span>
         <span>일휴 {currentAnnualVacation}</span>
         <span>특휴 {settings.specialVacation}</span>
       </section>

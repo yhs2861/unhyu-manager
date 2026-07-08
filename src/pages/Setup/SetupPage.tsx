@@ -27,6 +27,37 @@ const setupFields: SetupField[] = [
   { key: 'birthdayDay', label: '생일 일', step: '1', max: '31' },
 ];
 
+const setupSections = [
+  {
+    description: '이월분과 현재 적립된 운휴를 입력합니다.',
+    fields: setupFields.slice(0, 2),
+    icon: '🌿',
+    tone: 'unhyu',
+    title: '운휴 설정',
+  },
+  {
+    description: '상반기와 하반기 일휴 기준을 입력합니다.',
+    fields: setupFields.slice(2, 4),
+    icon: '📘',
+    tone: 'annual',
+    title: '일휴 설정',
+  },
+  {
+    description: '회사에서 부여된 특휴 개수를 입력합니다.',
+    fields: setupFields.slice(4, 5),
+    icon: '💜',
+    tone: 'special',
+    title: '특별휴가',
+  },
+  {
+    description: '생일휴가가 발생하는 월과 일을 입력합니다.',
+    fields: setupFields.slice(5),
+    icon: '🎂',
+    tone: 'birthday',
+    title: '생일 설정',
+  },
+];
+
 function getInitialSettings(): AppSettings {
   const settings = getSettings();
 
@@ -74,29 +105,47 @@ function SetupPage() {
   return (
     <main className="app-shell setup-page">
       <header className="setup-hero">
-        <p className="eyebrow">초기 설정</p>
-        <h1>운휴매니저 시작하기</h1>
-        <p>처음 한 번만 기본 휴가 정보를 입력하면 바로 사용할 수 있습니다.</p>
+        <span className="section-icon-badge setup" aria-hidden="true">
+          🗓️
+        </span>
+        <div>
+          <h1>운휴매니저</h1>
+          <strong>초기 설정</strong>
+          <p>처음 한 번만 기본 휴가 정보를 입력하면 바로 사용할 수 있습니다.</p>
+        </div>
       </header>
 
-      <section className="setup-panel" aria-label="초기 설정 입력">
-        {setupFields.map((field) => (
-          <label className="setup-field" key={field.key}>
-            <span>{field.label}</span>
-            <input
-              inputMode="decimal"
-              max={field.max}
-              min="0"
-              step={field.step}
-              type="number"
-              value={settingsForm[field.key]}
-              onBlur={() => handleBlur(field.key)}
-              onChange={(event) => handleChange(field.key, event.target.value)}
-              onFocus={() => handleFocus(field.key)}
-            />
-          </label>
-        ))}
-      </section>
+      {setupSections.map((section) => (
+        <section className="setup-card" aria-label={section.title} key={section.title}>
+          <div className="setup-card-heading">
+            <span className={`section-icon-badge setup-${section.tone}`} aria-hidden="true">
+              {section.icon}
+            </span>
+            <div>
+              <h2>{section.title}</h2>
+              <p>{section.description}</p>
+            </div>
+          </div>
+          <div className="setup-panel">
+            {section.fields.map((field) => (
+              <label className="setup-field" key={field.key}>
+                <span>{field.label}</span>
+                <input
+                  inputMode="decimal"
+                  max={field.max}
+                  min="0"
+                  step={field.step}
+                  type="number"
+                  value={settingsForm[field.key]}
+                  onBlur={() => handleBlur(field.key)}
+                  onChange={(event) => handleChange(field.key, event.target.value)}
+                  onFocus={() => handleFocus(field.key)}
+                />
+              </label>
+            ))}
+          </div>
+        </section>
+      ))}
 
       <button className="setup-save-button" type="button" onClick={handleSave}>
         저장하고 시작하기

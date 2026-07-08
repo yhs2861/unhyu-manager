@@ -236,7 +236,6 @@ function CalendarPage() {
     <main className="app-shell calendar-page">
       <MonthNavigator
         helperText="월 바로 이동"
-        icon="📅"
         isPickerOpen={isMonthPickerOpen}
         label="기록 달력"
         month={currentMonth.getMonth() + 1}

@@ -395,6 +395,22 @@ h3 {
   background: #fce7f3;
 }
 
+.section-icon-badge.setup-unhyu {
+  background: #dcfce7;
+}
+
+.section-icon-badge.setup-annual {
+  background: #dbeafe;
+}
+
+.section-icon-badge.setup-special {
+  background: #ede9fe;
+}
+
+.section-icon-badge.setup-birthday {
+  background: #fce7f3;
+}
+
 .home-icon-badge.balance {
   background: #dcfce7;
 }
@@ -1400,17 +1416,19 @@ h3 {
   border-top: 1px solid #e2e8f0;
   border-radius: 22px 22px 0 0;
   background: rgb(255 255 255 / 96%);
-  box-shadow: 0 -12px 28px rgb(15 23 42 / 10%);
+  box-shadow: 0 -10px 26px rgb(15 23 42 / 9%);
   backdrop-filter: blur(16px);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-nav-item {
   display: grid;
-  min-height: 66px;
+  min-height: 62px;
   place-items: center;
-  gap: 2px;
-  padding: 8px 4px 10px;
-  color: #64748b;
+  align-content: center;
+  gap: 3px;
+  padding: 7px 4px 8px;
+  color: #94a3b8;
   font-size: 0.72rem;
   text-decoration: none;
 }
@@ -1423,9 +1441,14 @@ h3 {
   border-radius: 50%;
   font-size: 1.14rem;
   line-height: 1;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .bottom-nav-item strong {
+  line-height: 1;
   font-weight: 900;
 }
 
@@ -1435,13 +1458,13 @@ h3 {
 
 .bottom-nav-item.active span {
   background: #dcfce7;
+  transform: translateY(-1px);
 }
 
 .month-navigator-card {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
   border: 1px solid #dbeafe;
   border-radius: var(--radius-card);
   padding: 12px;
@@ -1455,7 +1478,9 @@ h3 {
   grid-template-columns: 38px minmax(0, 1fr) 38px;
   align-items: center;
   gap: 6px;
+  width: min(100%, 320px);
   min-width: 0;
+  justify-self: center;
 }
 
 .month-nav-arrow {
@@ -2094,57 +2119,117 @@ h3 {
 
 .setup-page {
   display: grid;
-  gap: 16px;
+  gap: 12px;
+  padding-right: 16px;
   padding-bottom: 32px;
+  padding-left: 16px;
+  background:
+    radial-gradient(circle at top left, rgb(220 252 231 / 70%), transparent 34%),
+    #f8fafc;
 }
 
 .setup-hero {
-  display: grid;
-  gap: 8px;
-  padding: 22px 20px;
-  border-radius: 8px;
-  color: #ecfeff;
-  background: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-card);
+  color: #10201d;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff 70%);
+  box-shadow: var(--shadow-card);
 }
 
-.setup-hero .eyebrow,
-.setup-hero p:last-child {
+.setup-hero h1,
+.setup-hero strong,
+.setup-hero p {
   margin: 0;
-  color: #dbeafe;
 }
 
 .setup-hero h1 {
+  color: #10201d;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.setup-hero strong {
+  display: block;
+  margin-top: 4px;
+  color: #16a34a;
+  font-size: 1rem;
+}
+
+.setup-hero p {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.setup-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-card);
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
+}
+
+.setup-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.setup-card-heading h2,
+.setup-card-heading p {
   margin: 0;
-  font-size: 1.75rem;
+}
+
+.setup-card-heading h2 {
+  color: #10201d;
+  font-size: 1rem;
+  line-height: 1.1;
+}
+
+.setup-card-heading p {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .setup-panel {
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .setup-field {
   display: grid;
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid #dbe7e4;
-  border-radius: 8px;
-  background: #ffffff;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-soft);
+  background: #f8fafc;
 }
 
 .setup-field span {
   color: #10201d;
+  font-size: 0.82rem;
   font-weight: 900;
 }
 
 .setup-field input {
   width: 100%;
-  min-height: 46px;
-  border: 1px solid #dbe7e4;
-  border-radius: 8px;
-  padding: 0 12px;
+  min-height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0 10px;
   color: #10201d;
-  background: #f8fafc;
+  background: #ffffff;
   font: inherit;
   font-weight: 800;
 }
@@ -2160,10 +2245,10 @@ h3 {
   bottom: 18px;
   min-height: 54px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   color: #ffffff;
-  background: #2563eb;
-  box-shadow: 0 16px 28px rgb(37 99 235 / 24%);
+  background: #16a34a;
+  box-shadow: var(--shadow-card-strong);
   font-size: 1.05rem;
   font-weight: 900;
 }
