@@ -240,8 +240,8 @@ h3 {
 }
 
 .home-page.home-v2-page {
-  gap: 12px;
-  padding-top: 18px;
+  gap: 10px;
+  padding-top: 14px;
   background:
     radial-gradient(circle at top left, rgb(219 234 254 / 68%), transparent 34%),
     #f8fafc;
@@ -249,13 +249,13 @@ h3 {
 
 .home-v2-header {
   display: grid;
-  gap: 2px;
+  gap: 1px;
   padding: 0 2px;
 }
 
 .home-v2-header h1 {
   font-size: 1.58rem;
-  line-height: 1.08;
+  line-height: 1.02;
 }
 
 .home-v2-header span {
@@ -267,10 +267,10 @@ h3 {
 .home-card {
   display: grid;
   width: 100%;
-  gap: 9px;
+  gap: 8px;
   border: 0;
   border-radius: var(--radius-card);
-  padding: 14px;
+  padding: 12px;
   color: #10201d;
   background: #ffffff;
   box-shadow: var(--shadow-card);
@@ -310,8 +310,8 @@ h3 {
 }
 
 .home-primary-card {
-  gap: 8px;
-  padding: 18px 16px;
+  gap: 7px;
+  padding: 14px 14px;
   color: #ecfeff;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   box-shadow: var(--shadow-card-strong);
@@ -348,7 +348,7 @@ h3 {
 .home-today-card dl,
 .home-metric-grid {
   display: grid;
-  gap: 6px;
+  gap: 5px;
   margin: 0;
 }
 
@@ -383,7 +383,7 @@ h3 {
 .home-card-action {
   display: inline-flex;
   width: fit-content;
-  min-height: 36px;
+  min-height: 34px;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
@@ -416,15 +416,15 @@ h3 {
 
 .home-metric-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  gap: 6px;
 }
 
 .home-metric-grid > div {
   display: grid;
   align-content: center;
-  min-height: 52px;
+  min-height: 48px;
   border-radius: 8px;
-  padding: 8px;
+  padding: 7px;
   background: #f8fafc;
 }
 
