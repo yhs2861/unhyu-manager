@@ -239,8 +239,9 @@ h3 {
   gap: 18px;
 }
 
-.home-v2-page {
-  gap: var(--page-gap);
+.home-page.home-v2-page {
+  gap: 12px;
+  padding-top: 18px;
   background:
     radial-gradient(circle at top left, rgb(219 234 254 / 68%), transparent 34%),
     #f8fafc;
@@ -248,27 +249,28 @@ h3 {
 
 .home-v2-header {
   display: grid;
-  gap: 4px;
-  padding: 4px 2px 2px;
+  gap: 2px;
+  padding: 0 2px;
 }
 
 .home-v2-header h1 {
-  font-size: 1.7rem;
+  font-size: 1.58rem;
+  line-height: 1.08;
 }
 
 .home-v2-header span {
   color: #64748b;
-  font-size: 0.94rem;
+  font-size: 0.88rem;
   font-weight: 800;
 }
 
 .home-card {
   display: grid;
   width: 100%;
-  gap: 12px;
+  gap: 9px;
   border: 0;
   border-radius: var(--radius-card);
-  padding: var(--card-padding);
+  padding: 14px;
   color: #10201d;
   background: #ffffff;
   box-shadow: var(--shadow-card);
@@ -297,18 +299,19 @@ h3 {
 .home-card strong {
   display: block;
   margin: 0;
-  font-size: 1.55rem;
+  font-size: 1.48rem;
   line-height: 1.08;
 }
 
 .home-card > span:last-child {
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   font-weight: 800;
 }
 
 .home-primary-card {
-  padding: 24px 20px;
+  gap: 8px;
+  padding: 18px 16px;
   color: #ecfeff;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   box-shadow: var(--shadow-card-strong);
@@ -321,6 +324,7 @@ h3 {
 
 .home-primary-card strong {
   font-size: clamp(4rem, 22vw, 6.6rem);
+  line-height: 0.92;
   letter-spacing: 0;
 }
 
@@ -344,7 +348,7 @@ h3 {
 .home-today-card dl,
 .home-metric-grid {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
 }
 
@@ -363,10 +367,10 @@ h3 {
   margin: 0;
 }
 
-.home-today-card dt,
-.home-metric-grid dt {
+.home-page .home-today-card dt,
+.home-page .home-metric-grid dt {
   color: #64748b;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 800;
 }
 
@@ -379,14 +383,14 @@ h3 {
 .home-card-action {
   display: inline-flex;
   width: fit-content;
-  min-height: 40px;
+  min-height: 36px;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
-  padding: 0 14px;
+  padding: 0 12px;
   color: #ffffff;
   background: #2563eb;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   font-weight: 900;
 }
 
@@ -412,15 +416,15 @@ h3 {
 
 .home-metric-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 7px;
 }
 
 .home-metric-grid > div {
   display: grid;
   align-content: center;
-  min-height: 66px;
+  min-height: 52px;
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
   background: #f8fafc;
 }
 
