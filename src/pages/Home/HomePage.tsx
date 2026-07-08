@@ -11,7 +11,7 @@ import {
   getBirthdayVacationRemaining,
   isBirthdayVacationMonth,
 } from '../../utils/birthdayVacation';
-import { monthKey, today } from '../../utils/date';
+import { formatDateWithWeekday, monthKey, today } from '../../utils/date';
 
 const productWorkLabels: Record<ProductWork, string> = {
   none: '없음',
@@ -90,7 +90,7 @@ function HomePage() {
           <h1>운휴매니저</h1>
           <p>오늘의 운휴</p>
         </div>
-        <span>📅 {todayDate}</span>
+        <span>📅 {formatDateWithWeekday(todayDate)}</span>
       </header>
 
       <button

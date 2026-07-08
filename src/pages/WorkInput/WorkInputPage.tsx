@@ -11,7 +11,7 @@ import {
   getCurrentAnnualVacationTarget,
 } from '../../utils/annualVacation';
 import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
-import { today } from '../../utils/date';
+import { addDays, formatDateWithWeekday, today } from '../../utils/date';
 
 type Option<T> = {
   icon?: string;
@@ -185,6 +185,9 @@ function WorkInputPage() {
     : calculation;
   const needsVacation = !isAbsenceRecord && recordCalculation.difference < 0;
   const currentAnnualVacation = getCurrentAnnualVacationRemaining(settings);
+  const navigateToDate = (nextDate: string) => {
+    navigate(`/input?date=${nextDate}`);
+  };
 
   useEffect(() => {
     if (!needsVacation) {
@@ -264,8 +267,31 @@ function WorkInputPage() {
           <h1>입력</h1>
           <p>근무와 휴가 처리</p>
         </div>
-        <span>📅 {date}</span>
+        <span>📅 {formatDateWithWeekday(date)}</span>
       </header>
+
+      <section className="date-navigator-card" aria-label="입력 날짜 선택">
+        <button type="button" aria-label="이전날" onClick={() => navigateToDate(addDays(date, -1))}>
+          ‹
+        </button>
+        <label className="date-navigator-picker">
+          <span>선택 날짜</span>
+          <strong>{formatDateWithWeekday(date)}</strong>
+          <input
+            aria-label="날짜 직접 선택"
+            type="date"
+            value={date}
+            onChange={(event) => {
+              if (event.target.value) {
+                navigateToDate(event.target.value);
+              }
+            }}
+          />
+        </label>
+        <button type="button" aria-label="다음날" onClick={() => navigateToDate(addDays(date, 1))}>
+          ›
+        </button>
+      </section>
 
       <section className="vacation-balance-strip" aria-label="잔여 휴가">
         <span>운휴 {settings.currentUnhyu}</span>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import MonthNavigator from '../../components/MonthNavigator';
 import { getRecords } from '../../storage/LocalStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { today } from '../../utils/date';
@@ -39,10 +40,6 @@ function toDateString(date: Date) {
   const day = `${date.getDate()}`.padStart(2, '0');
 
   return `${year}-${month}-${day}`;
-}
-
-function getMonthLabel(date: Date) {
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
 }
 
 function formatSignedNumber(value: number) {
@@ -99,6 +96,66 @@ function getRecordChange(record: DailyRecord) {
     label: '운휴 0',
     tone: 'neutral',
   };
+}
+
+function getProductBadge(productWork: DailyRecord['productWork']) {
+  if (productWork === 'day') {
+    return { label: '주간', tone: 'product-day' };
+  }
+
+  if (productWork === 'night') {
+    return { label: '야간', tone: 'product-night' };
+  }
+
+  if (productWork === 'dayNight') {
+    return { label: '주야', tone: 'product-day-night' };
+  }
+
+  return { label: '없음', tone: 'product-none' };
+}
+
+function getCarBadge(carWork: DailyRecord['carWork']) {
+  if (carWork === 'day') {
+    return { label: '주간', tone: 'car-day' };
+  }
+
+  if (carWork === 'overtime') {
+    return { label: '연장', tone: 'car-overtime' };
+  }
+
+  return { label: '없음', tone: 'car-none' };
+}
+
+function getChangeBadge(record: DailyRecord) {
+  if (record.absence) {
+    return { label: '결근', tone: 'absence' };
+  }
+
+  if (record.difference > 0) {
+    return { label: formatSignedNumber(record.difference), tone: 'positive' };
+  }
+
+  if (record.difference === 0) {
+    return { label: '0', tone: 'neutral' };
+  }
+
+  if (record.vacationType === 'ilhyu') {
+    return { label: '일휴', tone: 'annual' };
+  }
+
+  if (record.vacationType === 'special') {
+    return { label: '특휴', tone: 'special' };
+  }
+
+  if (record.vacationType === 'birthday') {
+    return { label: '생휴', tone: 'birthday' };
+  }
+
+  if (record.vacationType === 'unhyu') {
+    return { label: '운휴', tone: 'unhyu' };
+  }
+
+  return { label: formatSignedNumber(record.difference), tone: 'negative' };
 }
 
 function getRecordAriaLabel(date: string, record: DailyRecord) {
@@ -177,62 +234,21 @@ function CalendarPage() {
 
   return (
     <main className="app-shell calendar-page">
-      <section className="calendar-header" aria-label="달력 월 이동">
-        <button className="calendar-nav-button" type="button" onClick={() => moveMonth(-1)}>
-          이전달
-        </button>
-        <div>
-          <span className="section-icon-badge calendar" aria-hidden="true">
-            📅
-          </span>
-          <p className="eyebrow">기록 달력</p>
-          <button
-            aria-expanded={isMonthPickerOpen}
-            className="calendar-title-button"
-            type="button"
-            onClick={toggleMonthPicker}
-          >
-            <h1>{getMonthLabel(currentMonth)}</h1>
-            <span>월 바로 이동</span>
-          </button>
-        </div>
-        <button className="calendar-nav-button" type="button" onClick={() => moveMonth(1)}>
-          다음달
-        </button>
-      </section>
-
-      {isMonthPickerOpen ? (
-        <section className="calendar-jump-panel" aria-label="연도와 월 선택">
-          <div className="calendar-select-grid">
-            <label>
-              <span>연도</span>
-              <select
-                value={pickerYear}
-                onChange={(event) => handleYearSelect(event.target.value)}
-              >
-                {yearOptions.map((year) => (
-                  <option key={year} value={year}>
-                    {year}년
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>월</span>
-              <select
-                value={pickerMonth}
-                onChange={(event) => handleMonthSelect(event.target.value)}
-              >
-                {monthOptions.map((month) => (
-                  <option key={month} value={month}>
-                    {month}월
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </section>
-      ) : null}
+      <MonthNavigator
+        helperText="월 바로 이동"
+        icon="📅"
+        isPickerOpen={isMonthPickerOpen}
+        label="기록 달력"
+        month={currentMonth.getMonth() + 1}
+        monthOptions={monthOptions}
+        year={currentMonth.getFullYear()}
+        yearOptions={yearOptions}
+        onMonthChange={handleMonthSelect}
+        onNext={() => moveMonth(1)}
+        onPrevious={() => moveMonth(-1)}
+        onTogglePicker={toggleMonthPicker}
+        onYearChange={handleYearSelect}
+      />
 
       <section className="calendar-panel" aria-label="월간 달력">
         <div className="calendar-weekdays">
@@ -249,7 +265,9 @@ function CalendarPage() {
         <div className="calendar-grid">
           {calendarDays.map((calendarDay) => {
             const record = recordsByDate.get(calendarDay.date);
-            const recordChange = record ? getRecordChange(record) : null;
+            const productBadge = record ? getProductBadge(record.productWork) : null;
+            const carBadge = record ? getCarBadge(record.carWork) : null;
+            const changeBadge = record ? getChangeBadge(record) : null;
             const isToday = calendarDay.date === todayDate;
             const isSelected = calendarDay.date === selectedDate;
             const className = [
@@ -273,12 +291,16 @@ function CalendarPage() {
                 onClick={() => handleDateClick(calendarDay.date)}
               >
                 <span className="calendar-day-number">{calendarDay.day}</span>
-                {record && recordChange ? (
+                {productBadge && carBadge && changeBadge ? (
                   <span className="calendar-record-lines" aria-hidden="true">
-                    <span>{productWorkLabels[record.productWork]}</span>
-                    <span>{carWorkLabels[record.carWork]}</span>
-                    <strong className={`calendar-record-change ${recordChange.tone}`}>
-                      {recordChange.label}
+                    <span className={`calendar-record-pill ${productBadge.tone}`}>
+                      {productBadge.label}
+                    </span>
+                    <span className={`calendar-record-pill ${carBadge.tone}`}>
+                      {carBadge.label}
+                    </span>
+                    <strong className={`calendar-record-pill change ${changeBadge.tone}`}>
+                      {changeBadge.label}
                     </strong>
                   </span>
                 ) : null}

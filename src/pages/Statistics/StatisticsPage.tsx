@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import MonthNavigator from '../../components/MonthNavigator';
 import { getRecords } from '../../storage/LocalStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { monthKey, today } from '../../utils/date';
@@ -82,6 +83,7 @@ function StatisticsPage() {
   const records = getRecords();
   const todayMonth = monthKey(today());
   const [selectedMonth, setSelectedMonth] = useState(todayMonth);
+  const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
   const selectedDate = createMonthDate(selectedMonth);
   const selectedYear = selectedDate.getFullYear();
   const selectedMonthNumber = selectedDate.getMonth() + 1;
@@ -138,49 +140,21 @@ function StatisticsPage() {
 
   return (
     <main className="app-shell statistics-page statistics-v2-page">
-      <section className="statistics-month-card" aria-label="통계 월 선택">
-        <span className="section-icon-badge statistics" aria-hidden="true">
-          📊
-        </span>
-        <div className="statistics-month-top">
-          <button type="button" onClick={() => moveMonth(-1)}>
-            이전달
-          </button>
-          <div>
-            <p className="eyebrow">월 통계</p>
-            <h1>{selectedMonth}</h1>
-            <span>{monthlyRecords.length}개 기록 기준</span>
-          </div>
-          <button type="button" onClick={() => moveMonth(1)}>
-            다음달
-          </button>
-        </div>
-        <div className="statistics-select-grid">
-          <label>
-            <span>연도</span>
-            <select value={selectedYear} onChange={(event) => handleYearSelect(event.target.value)}>
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}년
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>월</span>
-            <select
-              value={selectedMonthNumber}
-              onChange={(event) => handleMonthSelect(event.target.value)}
-            >
-              {monthOptions.map((month) => (
-                <option key={month} value={month}>
-                  {month}월
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
+      <MonthNavigator
+        helperText={`${monthlyRecords.length}개 기록 기준`}
+        icon="📊"
+        isPickerOpen={isMonthPickerOpen}
+        label="월 통계"
+        month={selectedMonthNumber}
+        monthOptions={monthOptions}
+        year={selectedYear}
+        yearOptions={yearOptions}
+        onMonthChange={handleMonthSelect}
+        onNext={() => moveMonth(1)}
+        onPrevious={() => moveMonth(-1)}
+        onTogglePicker={() => setIsMonthPickerOpen((isOpen) => !isOpen)}
+        onYearChange={handleYearSelect}
+      />
 
       <section className="statistics-card" aria-label="이번 달 요약">
         <div className="statistics-card-heading">
