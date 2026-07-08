@@ -1215,7 +1215,7 @@ h3 {
 
 .calendar-weekdays span {
   color: #10201d;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 900;
   text-align: center;
 }
@@ -1262,6 +1262,12 @@ h3 {
   color: #2563eb;
 }
 
+.calendar-day.muted .calendar-day-number,
+.calendar-day.muted .calendar-record-lines,
+.calendar-day.muted .calendar-record-change {
+  color: #cbd5e1;
+}
+
 .calendar-day.today {
   border-color: #2563eb;
 }
@@ -1274,7 +1280,7 @@ h3 {
 
 .calendar-day-number {
   color: #10201d;
-  font-size: 1.62rem;
+  font-size: 1.42rem;
   line-height: 1;
 }
 
