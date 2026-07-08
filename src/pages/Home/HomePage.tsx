@@ -27,7 +27,31 @@ const carWorkLabels: Record<CarWork, string> = {
 };
 
 function formatSignedNumber(value: number) {
-  return value > 0 ? `+${value}` : `${value}`;
+  const formattedValue = Number.isInteger(value) ? `${value}` : value.toFixed(1);
+
+  return value > 0 ? `+${formattedValue}` : formattedValue;
+}
+
+function formatDayValue(value: number) {
+  const formattedValue = Number.isInteger(value) ? `${value}` : value.toFixed(1);
+
+  return `${formattedValue}일`;
+}
+
+function formatSignedDayValue(value: number) {
+  return `${formatSignedNumber(value)}일`;
+}
+
+function getUnhyuToneClassName(value: number) {
+  if (value > 0) {
+    return 'positive';
+  }
+
+  if (value < 0) {
+    return 'negative';
+  }
+
+  return 'neutral';
 }
 
 function HomePage() {
@@ -50,101 +74,137 @@ function HomePage() {
       ? '사용 가능'
       : '사용 완료'
     : '해당 없음';
+  const todayRecordSummary = todayRecord
+    ? todayRecord.absence
+      ? `제품: ${productWorkLabels[todayRecord.productWork]} · 결근`
+      : `제품: ${productWorkLabels[todayRecord.productWork]} · 자동차: ${
+          carWorkLabels[todayRecord.carWork]
+        }`
+    : '';
+  const netUnhyuTone = getUnhyuToneClassName(netUnhyu);
 
   return (
     <main className="app-shell home-page home-v2-page">
       <header className="home-v2-header">
-        <p className="eyebrow">운휴매니저</p>
-        <h1>오늘의 운휴</h1>
-        <span>{todayDate}</span>
+        <div>
+          <h1>운휴매니저</h1>
+          <p>오늘의 운휴</p>
+        </div>
+        <span>📅 {todayDate}</span>
       </header>
 
       <button
-        className="home-card home-primary-card"
+        className="home-card home-dashboard-card home-primary-card"
         type="button"
         onClick={() => navigate('/statistics')}
       >
-        <span className="home-card-label">현재 운휴</span>
-        <strong>{settings.currentUnhyu}일</strong>
-        <span>이월 {formatSignedNumber(settings.carryOverUnhyu)}일 포함</span>
+        <span className="home-icon-badge balance" aria-hidden="true">
+          🗓️
+        </span>
+        <span className="home-card-content">
+          <span className="home-card-label">현재 운휴</span>
+          <strong>{formatDayValue(settings.currentUnhyu)}</strong>
+          <span>이월 {formatSignedDayValue(settings.carryOverUnhyu)} 포함</span>
+        </span>
       </button>
 
       <button
-        className={todayRecord ? 'home-card home-today-card complete' : 'home-card home-today-card missing'}
+        className={
+          todayRecord
+            ? 'home-card home-dashboard-card home-today-card complete'
+            : 'home-card home-dashboard-card home-today-card missing'
+        }
         type="button"
         onClick={() => navigate(`/input?date=${todayDate}`)}
       >
-        <span className="home-card-label">오늘 입력</span>
+        <span className="home-icon-badge today" aria-hidden="true">
+          ✅
+        </span>
         {todayRecord ? (
-          <>
+          <span className="home-card-content">
+            <span className="home-card-label">오늘 입력</span>
             <strong>입력 완료</strong>
-            <dl>
-              <div>
-                <dt>제품</dt>
-                <dd>{productWorkLabels[todayRecord.productWork]}</dd>
-              </div>
-              <div>
-                <dt>자동차</dt>
-                <dd>{todayRecord.absence ? '결근' : carWorkLabels[todayRecord.carWork]}</dd>
-              </div>
-            </dl>
-            <span className="home-card-action">오늘 기록 수정</span>
-          </>
+            <span>{todayRecordSummary}</span>
+          </span>
         ) : (
-          <>
-            <strong>오늘 입력이 없습니다.</strong>
-            <span className="home-card-action">입력하기</span>
-          </>
+          <span className="home-card-content">
+            <span className="home-card-label">오늘 입력</span>
+            <strong>입력 필요</strong>
+            <span>오늘 입력이 없습니다.</span>
+          </span>
         )}
+        <span className="home-card-action">{todayRecord ? '수정' : '입력하기'}</span>
       </button>
 
-      <button className="home-card home-month-card" type="button" onClick={() => navigate('/statistics')}>
-        <span className="home-card-label">이번 달</span>
-        <strong>{currentMonth}</strong>
-        <dl className="home-metric-grid">
-          <div>
-            <dt>제품</dt>
-            <dd>{productTotal}</dd>
+      <button
+        className="home-card home-dashboard-card home-month-card"
+        type="button"
+        onClick={() => navigate('/statistics')}
+      >
+        <span className="home-icon-badge month" aria-hidden="true">
+          📆
+        </span>
+        <span className="home-card-content">
+          <span className="home-card-title-row">
+            <span className="home-card-label">이번 달 요약</span>
+            <span>{currentMonth}</span>
+          </span>
+        </span>
+        <dl className="home-summary-grid">
+          <div className="product">
+            <dt>제품부두</dt>
+            <dd>{formatDayValue(productTotal)}</dd>
           </div>
-          <div>
-            <dt>자동차</dt>
-            <dd>{carTotal}</dd>
+          <div className="car">
+            <dt>자동차부두</dt>
+            <dd>{formatDayValue(carTotal)}</dd>
           </div>
-          <div>
+          <div className="absence">
             <dt>결근</dt>
             <dd>{absenceCount}회</dd>
           </div>
-          <div>
+          <div className={netUnhyuTone}>
             <dt>순 운휴</dt>
-            <dd>{formatSignedNumber(netUnhyu)}</dd>
+            <dd>{formatSignedDayValue(netUnhyu)}</dd>
           </div>
         </dl>
       </button>
 
-      <button className="home-card home-vacation-card" type="button" onClick={() => navigate('/settings')}>
-        <span className="home-card-label">휴가 현황</span>
-        <strong>잔여 휴가</strong>
-        <dl className="home-metric-grid">
+      <button
+        className="home-card home-dashboard-card home-vacation-card"
+        type="button"
+        onClick={() => navigate('/settings')}
+      >
+        <span className="home-icon-badge vacation" aria-hidden="true">
+          🌿
+        </span>
+        <span className="home-card-content">
+          <span className="home-card-title-row">
+            <span className="home-card-label">휴가 현황</span>
+            <span>
+              일휴 {getCurrentAnnualVacationLabel(todayDate)} · 생휴{' '}
+              {formatBirthdaySetting(settings)}
+            </span>
+          </span>
+        </span>
+        <dl className="home-vacation-grid">
           <div>
             <dt>운휴</dt>
-            <dd>{settings.currentUnhyu}</dd>
+            <dd>{formatDayValue(settings.currentUnhyu)}</dd>
           </div>
           <div>
             <dt>일휴</dt>
-            <dd>{annualVacation}</dd>
+            <dd>{formatDayValue(annualVacation)}</dd>
           </div>
           <div>
             <dt>특휴</dt>
-            <dd>{settings.specialVacation}</dd>
+            <dd>{formatDayValue(settings.specialVacation)}</dd>
           </div>
           <div>
             <dt>생휴</dt>
             <dd>{birthdayVacationStatus}</dd>
           </div>
         </dl>
-        <span>
-          일휴 {getCurrentAnnualVacationLabel(todayDate)} / 생휴 {formatBirthdaySetting(settings)}
-        </span>
       </button>
     </main>
   );
