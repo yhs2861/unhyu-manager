@@ -9,6 +9,10 @@ React, TypeScript, Vite 기반의 모바일 우선 PWA 프로젝트입니다.
 - PWA 매니페스트 및 서비스 워커 자동 업데이트
 - 모바일 화면을 먼저 고려한 운휴 현황 UI
 
+## 변경 기록
+
+버전별 변경 내역은 [CHANGELOG.md](./CHANGELOG.md)에서 확인할 수 있습니다.
+
 ## 시작하기
 
 ```bash
