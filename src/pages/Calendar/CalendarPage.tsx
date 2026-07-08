@@ -29,6 +29,7 @@ const vacationLabels: Record<Exclude<DailyRecord['vacationType'], 'none'>, strin
 type CalendarDay = {
   date: string;
   day: number;
+  dayOfWeek: number;
   isCurrentMonth: boolean;
 };
 
@@ -63,6 +64,7 @@ function getCalendarDays(currentMonth: Date): CalendarDay[] {
     return {
       date: toDateString(date),
       day: date.getDate(),
+      dayOfWeek: date.getDay(),
       isCurrentMonth: date.getMonth() === month,
     };
   });
@@ -231,8 +233,13 @@ function CalendarPage() {
 
       <section className="calendar-panel" aria-label="월간 달력">
         <div className="calendar-weekdays">
-          {weekDays.map((weekDay) => (
-            <span key={weekDay}>{weekDay}</span>
+          {weekDays.map((weekDay, index) => (
+            <span
+              className={index === 0 ? 'sunday' : index === 6 ? 'saturday' : 'weekday'}
+              key={weekDay}
+            >
+              {weekDay}
+            </span>
           ))}
         </div>
 
@@ -245,6 +252,8 @@ function CalendarPage() {
             const className = [
               'calendar-day',
               record ? 'has-record' : '',
+              calendarDay.dayOfWeek === 0 ? 'sunday' : '',
+              calendarDay.dayOfWeek === 6 ? 'saturday' : '',
               calendarDay.isCurrentMonth ? '' : 'muted',
               isToday ? 'today' : '',
               isSelected ? 'selected' : '',

@@ -1214,22 +1214,30 @@ h3 {
 }
 
 .calendar-weekdays span {
-  color: #64748b;
+  color: #10201d;
   font-size: 0.78rem;
   font-weight: 900;
   text-align: center;
 }
 
+.calendar-weekdays span.sunday {
+  color: #dc2626;
+}
+
+.calendar-weekdays span.saturday {
+  color: #2563eb;
+}
+
 .calendar-day {
   position: relative;
   display: grid;
-  min-height: 124px;
+  min-height: 104px;
   align-content: start;
   justify-items: stretch;
-  gap: 9px;
+  gap: 10px;
   border: 1px solid transparent;
   border-radius: 8px;
-  padding: 10px 2px 9px;
+  padding: 8px 2px 7px;
   color: #10201d;
   background: #f8fafc;
   font-weight: 900;
@@ -1246,6 +1254,14 @@ h3 {
   background: #f8fafc;
 }
 
+.calendar-day.sunday .calendar-day-number {
+  color: #dc2626;
+}
+
+.calendar-day.saturday .calendar-day-number {
+  color: #2563eb;
+}
+
 .calendar-day.today {
   border-color: #2563eb;
 }
@@ -1257,13 +1273,14 @@ h3 {
 }
 
 .calendar-day-number {
-  font-size: 0.88rem;
+  color: #10201d;
+  font-size: 1.62rem;
   line-height: 1;
 }
 
 .calendar-record-lines {
   display: grid;
-  gap: 7px;
+  gap: 5px;
   min-width: 0;
   color: #475569;
   font-size: clamp(0.52rem, 1.95vw, 0.67rem);
