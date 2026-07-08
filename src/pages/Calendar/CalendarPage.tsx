@@ -182,6 +182,9 @@ function CalendarPage() {
           이전달
         </button>
         <div>
+          <span className="section-icon-badge calendar" aria-hidden="true">
+            📅
+          </span>
           <p className="eyebrow">기록 달력</p>
           <button
             aria-expanded={isMonthPickerOpen}

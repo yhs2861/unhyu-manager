@@ -39,6 +39,14 @@ function formatSignedNumber(value: number) {
   return value > 0 ? `+${formatNumber(value)}` : formatNumber(value);
 }
 
+function formatDayValue(value: number) {
+  return `${formatNumber(value)}일`;
+}
+
+function formatSignedDayValue(value: number) {
+  return `${formatSignedNumber(value)}일`;
+}
+
 function getToneClassName(value: number) {
   if (value > 0) {
     return 'text-positive';
@@ -131,6 +139,9 @@ function StatisticsPage() {
   return (
     <main className="app-shell statistics-page statistics-v2-page">
       <section className="statistics-month-card" aria-label="통계 월 선택">
+        <span className="section-icon-badge statistics" aria-hidden="true">
+          📊
+        </span>
         <div className="statistics-month-top">
           <button type="button" onClick={() => moveMonth(-1)}>
             이전달
@@ -173,54 +184,73 @@ function StatisticsPage() {
 
       <section className="statistics-card" aria-label="이번 달 요약">
         <div className="statistics-card-heading">
-          <span>이번 달 요약</span>
-          <strong className={getToneClassName(netUnhyu)}>순 운휴 {formatSignedNumber(netUnhyu)}</strong>
+          <span className="section-icon-badge month" aria-hidden="true">
+            📆
+          </span>
+          <div>
+            <span>이번 달 요약</span>
+            <strong className={getToneClassName(netUnhyu)}>
+              순 운휴 {formatSignedDayValue(netUnhyu)}
+            </strong>
+          </div>
         </div>
         <dl className="statistics-summary-grid">
-          <div>
+          <div className="product">
             <dt>제품부두</dt>
-            <dd>{formatNumber(productTotal)}일</dd>
+            <dd>{formatDayValue(productTotal)}</dd>
           </div>
-          <div>
+          <div className="car">
             <dt>자동차부두</dt>
-            <dd>{formatNumber(carTotal)}일</dd>
+            <dd>{formatDayValue(carTotal)}</dd>
           </div>
-          <div>
+          <div className="absence">
             <dt>결근</dt>
             <dd>{absenceRecords.length}회</dd>
           </div>
-          <div>
+          <div className={getToneClassName(netUnhyu)}>
             <dt>순 운휴</dt>
-            <dd className={getToneClassName(netUnhyu)}>{formatSignedNumber(netUnhyu)}</dd>
+            <dd>{formatSignedDayValue(netUnhyu)}</dd>
           </div>
         </dl>
       </section>
 
       <section className="statistics-card" aria-label="운휴 변화">
         <div className="statistics-card-heading">
-          <span>운휴 변화</span>
-          <strong className={getToneClassName(netUnhyu)}>{formatSignedNumber(netUnhyu)}</strong>
+          <span className="section-icon-badge balance" aria-hidden="true">
+            🌿
+          </span>
+          <div>
+            <span>운휴 변화</span>
+            <strong className={getToneClassName(netUnhyu)}>
+              {formatSignedDayValue(netUnhyu)}
+            </strong>
+          </div>
         </div>
         <dl className="statistics-line-list">
           <div>
             <dt>운휴 증가</dt>
-            <dd className="text-positive">+{formatNumber(unhyuIncrease)}</dd>
+            <dd className="text-positive">+{formatDayValue(unhyuIncrease)}</dd>
           </div>
           <div>
             <dt>운휴 감소</dt>
-            <dd className="text-negative">-{formatNumber(unhyuDecrease)}</dd>
+            <dd className="text-negative">-{formatDayValue(unhyuDecrease)}</dd>
           </div>
           <div>
             <dt>순 운휴</dt>
-            <dd className={getToneClassName(netUnhyu)}>{formatSignedNumber(netUnhyu)}</dd>
+            <dd className={getToneClassName(netUnhyu)}>{formatSignedDayValue(netUnhyu)}</dd>
           </div>
         </dl>
       </section>
 
       <section className="statistics-card" aria-label="휴가 사용">
         <div className="statistics-card-heading">
-          <span>휴가 사용</span>
-          <strong>{unhyuUseRecords.length + annualUseCount + specialUseCount + birthdayUseCount}회</strong>
+          <span className="section-icon-badge vacation" aria-hidden="true">
+            🏖️
+          </span>
+          <div>
+            <span>휴가 사용</span>
+            <strong>{unhyuUseRecords.length + annualUseCount + specialUseCount + birthdayUseCount}회</strong>
+          </div>
         </div>
         <dl className="statistics-line-list">
           <div>
@@ -250,8 +280,13 @@ function StatisticsPage() {
 
       <section className="statistics-card" aria-label="최근 기록">
         <div className="statistics-card-heading">
-          <span>최근 기록</span>
-          <strong>{monthlyRecords.length}건</strong>
+          <span className="section-icon-badge records" aria-hidden="true">
+            🧾
+          </span>
+          <div>
+            <span>최근 기록</span>
+            <strong>{monthlyRecords.length}건</strong>
+          </div>
         </div>
         {monthlyRecords.length > 0 ? (
           <ol className="statistics-record-list">
@@ -259,7 +294,9 @@ function StatisticsPage() {
               <li key={record.id}>
                 <div>
                   <time dateTime={record.date}>{record.date.slice(5)}</time>
-                  <strong>{record.absence ? '결근' : getRecordChangeLabel(record)}</strong>
+                  <strong className={record.absence ? 'record-pill absence' : 'record-pill'}>
+                    {record.absence ? '결근' : getRecordChangeLabel(record)}
+                  </strong>
                 </div>
                 <p>
                   {productWorkLabels[record.productWork]} /{' '}

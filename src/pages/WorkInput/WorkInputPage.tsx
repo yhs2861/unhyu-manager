@@ -14,28 +14,29 @@ import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/
 import { today } from '../../utils/date';
 
 type Option<T> = {
+  icon?: string;
   label: string;
   value: T;
 };
 
 const productOptions: Option<ProductWork>[] = [
-  { label: '없음', value: 'none' },
-  { label: '주간', value: 'day' },
-  { label: '야간', value: 'night' },
-  { label: '주간+야간', value: 'dayNight' },
+  { icon: '—', label: '없음', value: 'none' },
+  { icon: '☀️', label: '주간', value: 'day' },
+  { icon: '🌙', label: '야간', value: 'night' },
+  { icon: '⏱️', label: '주간+야간', value: 'dayNight' },
 ];
 
 const carOptions: Option<CarWork>[] = [
-  { label: '없음', value: 'none' },
-  { label: '주간', value: 'day' },
-  { label: '연장', value: 'overtime' },
+  { icon: '—', label: '없음', value: 'none' },
+  { icon: '🚗', label: '주간', value: 'day' },
+  { icon: '⏰', label: '연장', value: 'overtime' },
 ];
 
 const vacationOptions: Option<Exclude<VacationType, 'none'>>[] = [
-  { label: '운휴', value: 'unhyu' },
-  { label: '일휴', value: 'ilhyu' },
-  { label: '특휴', value: 'special' },
-  { label: '생휴', value: 'birthday' },
+  { icon: '🌿', label: '운휴', value: 'unhyu' },
+  { icon: '📘', label: '일휴', value: 'ilhyu' },
+  { icon: '💜', label: '특휴', value: 'special' },
+  { icon: '🎂', label: '생휴', value: 'birthday' },
 ];
 
 function createRecordId() {
@@ -259,9 +260,11 @@ function WorkInputPage() {
   return (
     <main className="app-shell work-input-page work-input-v2-page">
       <header className="work-input-header work-input-v2-header">
-        <p className="eyebrow">오늘 입력</p>
-        <h1>운휴매니저</h1>
-        <p>{date}</p>
+        <div>
+          <h1>입력</h1>
+          <p>근무와 휴가 처리</p>
+        </div>
+        <span>📅 {date}</span>
       </header>
 
       <section className="vacation-balance-strip" aria-label="잔여 휴가">
@@ -272,8 +275,13 @@ function WorkInputPage() {
 
       <section className="work-section work-choice-section" aria-labelledby="product-work-title">
         <div className="work-section-heading">
-          <h2 id="product-work-title">제품부두</h2>
-          <span>근무 형태 선택</span>
+          <span className="section-icon-badge product" aria-hidden="true">
+            ⚓
+          </span>
+          <div>
+            <h2 id="product-work-title">제품부두</h2>
+            <span>근무 형태 선택</span>
+          </div>
         </div>
         <div className="work-option-grid product-grid work-card-grid">
           {productOptions.map((option) => (
@@ -288,6 +296,7 @@ function WorkInputPage() {
               type="button"
               onClick={() => setProductWork(option.value)}
             >
+              <em aria-hidden="true">{option.icon}</em>
               <span>{option.label}</span>
             </button>
           ))}
@@ -296,8 +305,13 @@ function WorkInputPage() {
 
       <section className="work-section work-choice-section" aria-labelledby="car-work-title">
         <div className="work-section-heading">
-          <h2 id="car-work-title">자동차부두</h2>
-          <span>{isAbsenceRecord ? '결근 처리 중' : '근무 형태 선택'}</span>
+          <span className="section-icon-badge car" aria-hidden="true">
+            🚗
+          </span>
+          <div>
+            <h2 id="car-work-title">자동차부두</h2>
+            <span>{isAbsenceRecord ? '결근 처리 중' : '근무 형태 선택'}</span>
+          </div>
         </div>
         <div className="work-option-grid work-card-grid">
           {carOptions.map((option) => (
@@ -313,6 +327,7 @@ function WorkInputPage() {
               type="button"
               onClick={() => setCarWork(option.value)}
             >
+              <em aria-hidden="true">{option.icon}</em>
               <span>{option.label}</span>
             </button>
           ))}
@@ -322,8 +337,13 @@ function WorkInputPage() {
       {needsVacation ? (
         <section className="work-section work-choice-section" aria-labelledby="vacation-title">
           <div className="work-section-heading">
-            <h2 id="vacation-title">휴가처리</h2>
-            <span>필수 선택</span>
+            <span className="section-icon-badge vacation" aria-hidden="true">
+              🌿
+            </span>
+            <div>
+              <h2 id="vacation-title">휴가처리</h2>
+              <span>필수 선택</span>
+            </div>
           </div>
           <div className="work-option-grid work-card-grid">
             {vacationOptions.map((option) => (
@@ -331,13 +351,14 @@ function WorkInputPage() {
                 aria-pressed={vacationType === option.value}
                 className={
                   vacationType === option.value
-                    ? 'work-option work-card-option selected'
-                    : 'work-option work-card-option'
+                    ? `work-option work-card-option vacation-${option.value} selected`
+                    : `work-option work-card-option vacation-${option.value}`
                 }
                 key={option.value}
                 type="button"
                 onClick={() => setVacationType(option.value)}
               >
+                <em aria-hidden="true">{option.icon}</em>
                 <span>{option.label}</span>
               </button>
             ))}
@@ -347,7 +368,12 @@ function WorkInputPage() {
 
       <section className={getResultClassName(recordCalculation.difference)} aria-live="polite">
         <div className="work-result-summary">
-          <p>계산 결과</p>
+          <div>
+            <span className="section-icon-badge result" aria-hidden="true">
+              🧮
+            </span>
+            <p>계산 결과</p>
+          </div>
           <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
         </div>
         <dl className="work-result-grid">
@@ -367,9 +393,14 @@ function WorkInputPage() {
       </section>
 
       <section className="work-section" aria-labelledby="memo-title">
-        <label htmlFor="work-memo" id="memo-title">
-          메모
-        </label>
+        <div className="work-section-heading">
+          <span className="section-icon-badge memo" aria-hidden="true">
+            📝
+          </span>
+          <label htmlFor="work-memo" id="memo-title">
+            메모
+          </label>
+        </div>
         <textarea
           id="work-memo"
           placeholder="메모를 입력하세요."
@@ -382,8 +413,11 @@ function WorkInputPage() {
       {canMarkAbsence ? (
         <section className="work-section absence-section absence-card" aria-labelledby="absence-title">
           <div>
+            <span className="section-icon-badge absence" aria-hidden="true">
+              ⚠️
+            </span>
             <h2 id="absence-title">결근 처리</h2>
-            <p>결근은 휴가를 차감하지 않고 제품부두 합계에서 제외됩니다.</p>
+            <p>결근은 휴가를 차감하지 않고 자동차부두는 없음으로 저장됩니다.</p>
           </div>
           <button
             aria-pressed={isAbsenceRecord}

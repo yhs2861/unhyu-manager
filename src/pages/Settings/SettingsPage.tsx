@@ -36,6 +36,9 @@ const settingsFields: SettingsField[] = [
   { key: 'birthdayDay', label: '생일 일', step: '1', max: '31' },
 ];
 
+const workSettingFields = settingsFields.slice(0, 5);
+const vacationSettingFields = settingsFields.slice(5);
+
 type BackupFile = {
   version: string;
   exportedAt: string;
@@ -184,33 +187,79 @@ function SettingsPage() {
   return (
     <main className="app-shell settings-page">
       <header className="settings-header">
-        <p className="eyebrow">휴가 설정</p>
         <h1>설정</h1>
+        <span>앱 기본값 관리</span>
       </header>
 
       <section className="settings-current-annual" aria-label="현재 기간 일휴">
-        <span>현재 기간 일휴</span>
-        <strong>일휴 {getCurrentAnnualVacationRemaining(previewSettings)}</strong>
-        <p>{getCurrentAnnualVacationLabel()}</p>
+        <span className="section-icon-badge annual" aria-hidden="true">
+          📘
+        </span>
+        <div>
+          <span>현재 기간 일휴</span>
+          <strong>일휴 {getCurrentAnnualVacationRemaining(previewSettings)}일</strong>
+          <p>{getCurrentAnnualVacationLabel()}</p>
+        </div>
       </section>
 
-      <section className="settings-panel" aria-label="휴가 설정 입력">
-        {settingsFields.map((field) => (
-          <label className="settings-field" key={field.key}>
-            <span>{field.label}</span>
-            <input
-              inputMode="decimal"
-              max={field.max}
-              min="0"
-              step={field.step}
-              type="number"
-              value={settingsForm[field.key]}
-              onBlur={() => handleBlur(field.key)}
-              onChange={(event) => handleChange(field.key, event.target.value)}
-              onFocus={() => handleFocus(field.key)}
-            />
-          </label>
-        ))}
+      <section className="settings-card" aria-label="근무 설정 입력">
+        <div className="settings-card-heading">
+          <span className="section-icon-badge settings-work" aria-hidden="true">
+            ⚙️
+          </span>
+          <div>
+            <h2>근무 설정</h2>
+            <p>운휴와 일휴 잔여 값을 관리합니다.</p>
+          </div>
+        </div>
+        <div className="settings-panel">
+          {workSettingFields.map((field) => (
+            <label className="settings-field" key={field.key}>
+              <span>{field.label}</span>
+              <input
+                inputMode="decimal"
+                max={field.max}
+                min="0"
+                step={field.step}
+                type="number"
+                value={settingsForm[field.key]}
+                onBlur={() => handleBlur(field.key)}
+                onChange={(event) => handleChange(field.key, event.target.value)}
+                onFocus={() => handleFocus(field.key)}
+              />
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <section className="settings-card" aria-label="휴가 설정 입력">
+        <div className="settings-card-heading">
+          <span className="section-icon-badge settings-vacation" aria-hidden="true">
+            🎂
+          </span>
+          <div>
+            <h2>휴가 설정</h2>
+            <p>생일휴가 발생 기준을 설정합니다.</p>
+          </div>
+        </div>
+        <div className="settings-panel settings-panel-compact">
+          {vacationSettingFields.map((field) => (
+            <label className="settings-field" key={field.key}>
+              <span>{field.label}</span>
+              <input
+                inputMode="decimal"
+                max={field.max}
+                min="0"
+                step={field.step}
+                type="number"
+                value={settingsForm[field.key]}
+                onBlur={() => handleBlur(field.key)}
+                onChange={(event) => handleChange(field.key, event.target.value)}
+                onFocus={() => handleFocus(field.key)}
+              />
+            </label>
+          ))}
+        </div>
       </section>
 
       <div className="settings-actions">
@@ -222,15 +271,31 @@ function SettingsPage() {
         </button>
       </div>
 
-      <button className="settings-setup-button" type="button" onClick={handleRestartSetup}>
-        초기 설정 다시 하기
-      </button>
+      <section className="settings-card settings-setup-card" aria-label="초기 설정">
+        <div className="settings-card-heading">
+          <span className="section-icon-badge setup" aria-hidden="true">
+            🧭
+          </span>
+          <div>
+            <h2>초기 설정</h2>
+            <p>처음 실행할 때의 설정 마법사를 다시 시작합니다.</p>
+          </div>
+        </div>
+        <button className="settings-setup-button" type="button" onClick={handleRestartSetup}>
+          초기 설정 다시 하기
+        </button>
+      </section>
 
       <section className="data-management-card" aria-label="데이터 관리">
-        <div>
-          <span>데이터 관리</span>
-          <strong>백업 / 복원</strong>
-          <p>설정과 근무 기록을 JSON 파일로 보관합니다.</p>
+        <div className="settings-card-heading">
+          <span className="section-icon-badge data" aria-hidden="true">
+            💾
+          </span>
+          <div>
+            <h2>데이터 관리</h2>
+            <strong>백업 / 복원</strong>
+            <p>설정과 근무 기록을 JSON 파일로 보관합니다.</p>
+          </div>
         </div>
         <div className="data-management-actions">
           <button type="button" onClick={handleBackup}>
@@ -263,6 +328,9 @@ function SettingsPage() {
       ) : null}
 
       <section className="app-info-card" aria-label="앱 정보">
+        <span className="section-icon-badge info" aria-hidden="true">
+          ℹ️
+        </span>
         <strong>운휴매니저</strong>
         <span>Version 2.0.0</span>
         <p>Developer by</p>
