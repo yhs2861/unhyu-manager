@@ -1055,8 +1055,8 @@ h3 {
 .snackbar {
   position: fixed;
   left: 50%;
-  bottom: 24px;
-  z-index: 10;
+  bottom: calc(150px + env(safe-area-inset-bottom));
+  z-index: 50;
   width: min(calc(100% - 36px), 420px);
   transform: translateX(-50%);
   border-radius: 8px;

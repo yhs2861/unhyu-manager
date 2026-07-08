@@ -319,48 +319,6 @@ function WorkInputPage() {
         </div>
       </section>
 
-      {canMarkAbsence ? (
-        <section className="work-section absence-section absence-card" aria-labelledby="absence-title">
-          <div>
-            <h2 id="absence-title">결근 처리</h2>
-            <p>결근은 휴가를 차감하지 않고 제품부두 합계에서 제외됩니다.</p>
-          </div>
-          <button
-            aria-pressed={isAbsenceRecord}
-            className={
-              isAbsenceRecord
-                ? 'work-option work-card-option selected'
-                : 'work-option work-card-option'
-            }
-            type="button"
-            onClick={() => setAbsence((currentValue) => !currentValue)}
-          >
-            결근 처리
-          </button>
-        </section>
-      ) : null}
-
-      <section className={getResultClassName(recordCalculation.difference)} aria-live="polite">
-        <div className="work-result-summary">
-          <p>계산 결과</p>
-          <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
-        </div>
-        <dl className="work-result-grid">
-          <div>
-            <dt>제품 점수</dt>
-            <dd>{recordCalculation.productPoint}</dd>
-          </div>
-          <div>
-            <dt>자동차 점수</dt>
-            <dd>{recordCalculation.carPoint}</dd>
-          </div>
-          <div>
-            <dt>운휴 차이</dt>
-            <dd>{isAbsenceRecord ? '0' : formatDifference(recordCalculation.difference)}</dd>
-          </div>
-        </dl>
-      </section>
-
       {needsVacation ? (
         <section className="work-section work-choice-section" aria-labelledby="vacation-title">
           <div className="work-section-heading">
@@ -387,6 +345,27 @@ function WorkInputPage() {
         </section>
       ) : null}
 
+      <section className={getResultClassName(recordCalculation.difference)} aria-live="polite">
+        <div className="work-result-summary">
+          <p>계산 결과</p>
+          <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
+        </div>
+        <dl className="work-result-grid">
+          <div>
+            <dt>제품 점수</dt>
+            <dd>{recordCalculation.productPoint}</dd>
+          </div>
+          <div>
+            <dt>자동차 점수</dt>
+            <dd>{recordCalculation.carPoint}</dd>
+          </div>
+          <div>
+            <dt>운휴 차이</dt>
+            <dd>{isAbsenceRecord ? '0' : formatDifference(recordCalculation.difference)}</dd>
+          </div>
+        </dl>
+      </section>
+
       <section className="work-section" aria-labelledby="memo-title">
         <label htmlFor="work-memo" id="memo-title">
           메모
@@ -399,6 +378,27 @@ function WorkInputPage() {
           onChange={(event) => setMemo(event.target.value)}
         />
       </section>
+
+      {canMarkAbsence ? (
+        <section className="work-section absence-section absence-card" aria-labelledby="absence-title">
+          <div>
+            <h2 id="absence-title">결근 처리</h2>
+            <p>결근은 휴가를 차감하지 않고 제품부두 합계에서 제외됩니다.</p>
+          </div>
+          <button
+            aria-pressed={isAbsenceRecord}
+            className={
+              isAbsenceRecord
+                ? 'work-option work-card-option selected'
+                : 'work-option work-card-option'
+            }
+            type="button"
+            onClick={() => setAbsence((currentValue) => !currentValue)}
+          >
+            결근 처리
+          </button>
+        </section>
+      ) : null}
 
       <button className="work-save-button" type="button" onClick={handleSave}>
         저장
