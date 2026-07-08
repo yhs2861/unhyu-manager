@@ -1621,6 +1621,12 @@ h3 {
   gap: 16px;
 }
 
+.statistics-v2-page {
+  background:
+    radial-gradient(circle at top left, rgb(219 234 254 / 68%), transparent 34%),
+    #f8fafc;
+}
+
 .statistics-header {
   padding: 20px;
   border-radius: 8px;
@@ -1636,6 +1642,219 @@ h3 {
 
 .statistics-header h1 {
   margin: 4px 0 8px;
+}
+
+.statistics-month-card,
+.statistics-card {
+  display: grid;
+  gap: 14px;
+  border: 0;
+  border-radius: var(--radius-card);
+  padding: 18px;
+  color: #10201d;
+  background: #ffffff;
+  box-shadow: var(--shadow-card);
+}
+
+.statistics-month-card {
+  color: #ecfeff;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: var(--shadow-card-strong);
+}
+
+.statistics-month-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.statistics-month-top button {
+  min-height: 42px;
+  border: 0;
+  border-radius: var(--radius-card);
+  padding: 0 12px;
+  color: #2563eb;
+  background: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.statistics-month-top h1,
+.statistics-month-top p,
+.statistics-month-top span {
+  margin: 0;
+}
+
+.statistics-month-top h1 {
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+
+.statistics-month-top p,
+.statistics-month-top span {
+  color: #dbeafe;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.statistics-select-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.statistics-select-grid label {
+  display: grid;
+  gap: 6px;
+}
+
+.statistics-select-grid span {
+  color: #dbeafe;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.statistics-select-grid select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: var(--radius-card);
+  padding: 0 12px;
+  color: #10201d;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 900;
+}
+
+.statistics-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.statistics-card-heading span {
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.statistics-card-heading strong {
+  color: #2563eb;
+  font-size: 1.55rem;
+  line-height: 1;
+  text-align: right;
+}
+
+.statistics-summary-grid,
+.statistics-line-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.statistics-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.statistics-summary-grid div {
+  display: grid;
+  gap: 6px;
+  border-radius: var(--radius-card);
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.statistics-summary-grid dt,
+.statistics-summary-grid dd,
+.statistics-line-list dt,
+.statistics-line-list dd {
+  margin: 0;
+}
+
+.statistics-summary-grid dt,
+.statistics-line-list dt {
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.statistics-summary-grid dd {
+  color: #10201d;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.statistics-line-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.statistics-line-list div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.statistics-line-list dd {
+  color: #10201d;
+  font-size: 1.08rem;
+  font-weight: 900;
+  text-align: right;
+}
+
+.statistics-record-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statistics-record-list li {
+  display: grid;
+  gap: 6px;
+  border-radius: var(--radius-card);
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.statistics-record-list li > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.statistics-record-list time,
+.statistics-record-list p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.statistics-record-list strong {
+  color: #2563eb;
+  font-size: 1rem;
+  text-align: right;
+}
+
+.statistics-empty-message {
+  margin: 0;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-card);
+  padding: 18px;
+  color: #64748b;
+  background: #f8fafc;
+  font-weight: 900;
+  text-align: center;
 }
 
 .month-close-panel {
