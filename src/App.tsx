@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import BottomNavigation from './components/BottomNavigation';
 import CalendarPage from './pages/Calendar/CalendarPage';
@@ -34,6 +34,25 @@ function AppRoutes() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => setShowSplash(false), 1000);
+
+    return () => window.clearTimeout(timerId);
+  }, []);
+
+  if (showSplash) {
+    return (
+      <main className="splash-screen" aria-label="앱 시작 화면">
+        <img alt="" src="icons/icon.svg" />
+        <h1>운휴매니저</h1>
+        <p>광양항 근태관리</p>
+        <span>Version 2.0.0</span>
+      </main>
+    );
+  }
+
   return (
     <HashRouter>
       <AppRoutes />

@@ -2,7 +2,7 @@
   "name": "운휴매니저",
   "short_name": "운휴매니저",
   "description": "차량과 장비의 운휴 상태를 빠르게 확인하고 관리하는 모바일 우선 PWA",
-  "theme_color": "#0f766e",
+  "theme_color": "#2563eb",
   "background_color": "#f8fafc",
   "display": "standalone",
   "orientation": "portrait",

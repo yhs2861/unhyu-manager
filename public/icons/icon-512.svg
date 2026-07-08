@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="운휴매니저 아이콘">
-  <rect width="512" height="512" rx="96" fill="#0f766e"/>
-  <circle cx="256" cy="256" r="154" fill="#ccfbf1"/>
-  <path fill="#0f766e" d="M164 218c0-26 21-47 47-47h90c26 0 47 21 47 47v76h-28v-76c0-11-8-19-19-19h-90c-11 0-19 8-19 19v76h-28z"/>
-  <path fill="#115e59" d="M145 294h222c13 0 23 10 23 23v28c0 13-10 23-23 23H145c-13 0-23-10-23-23v-28c0-13 10-23 23-23z"/>
-  <circle cx="188" cy="368" r="24" fill="#f8fafc"/>
-  <circle cx="324" cy="368" r="24" fill="#f8fafc"/>
+  <rect width="512" height="512" rx="112" fill="#2563eb"/>
+  <rect x="96" y="112" width="320" height="304" rx="44" fill="#dbeafe"/>
+  <rect x="96" y="176" width="320" height="72" fill="#1d4ed8"/>
+  <rect x="154" y="286" width="58" height="58" rx="12" fill="#ffffff"/>
+  <rect x="234" y="286" width="58" height="58" rx="12" fill="#ffffff"/>
+  <rect x="154" y="110" width="36" height="76" rx="18" fill="#93c5fd"/>
+  <rect x="322" y="110" width="36" height="76" rx="18" fill="#93c5fd"/>
+  <path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="38" d="m184 246 52 52 116-124"/>
 </svg>

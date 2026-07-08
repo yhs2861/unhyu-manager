@@ -235,6 +235,13 @@ function SettingsPage() {
           {message}
         </p>
       ) : null}
+
+      <section className="app-info-card" aria-label="앱 정보">
+        <strong>운휴매니저</strong>
+        <span>Version 2.0.0</span>
+        <p>Developer by</p>
+        <b>양희수</b>
+      </section>
     </main>
   );
 }

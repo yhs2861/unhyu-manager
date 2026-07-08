@@ -52,6 +52,50 @@ button {
   min-height: 100vh;
 }
 
+.splash-screen {
+  display: grid;
+  min-width: 320px;
+  min-height: 100vh;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 32px;
+  color: #eff6ff;
+  background:
+    radial-gradient(circle at top, rgb(147 197 253 / 34%), transparent 34%),
+    linear-gradient(135deg, #1d4ed8, #2563eb);
+  text-align: center;
+}
+
+.splash-screen img {
+  width: 92px;
+  height: 92px;
+  margin-bottom: 8px;
+  border-radius: 22px;
+  box-shadow:
+    0 10px 24px rgb(15 23 42 / 20%),
+    0 2px 6px rgb(15 23 42 / 12%);
+}
+
+.splash-screen h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.splash-screen p,
+.splash-screen span {
+  margin: 0;
+  color: #dbeafe;
+  font-weight: 800;
+}
+
+.splash-screen span {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
 .top-bar {
   display: flex;
   align-items: center;
@@ -101,8 +145,8 @@ h3 {
   place-items: center;
   border: 0;
   border-radius: 8px;
-  color: #0f766e;
-  background: #ccfbf1;
+  color: #2563eb;
+  background: #dbeafe;
   font-weight: 900;
 }
 
@@ -123,7 +167,7 @@ h3 {
 .summary-panel strong {
   display: block;
   margin-top: 8px;
-  color: #0f766e;
+  color: #2563eb;
   font-size: 1.65rem;
   line-height: 1;
 }
@@ -152,7 +196,7 @@ h3 {
 .dashboard-card strong {
   display: block;
   margin: 8px 0 4px;
-  color: #0f766e;
+  color: #2563eb;
   font-size: 1.35rem;
   line-height: 1.1;
 }
@@ -237,15 +281,15 @@ h3 {
 .home-primary-card {
   padding: 24px 20px;
   color: #ecfeff;
-  background: linear-gradient(135deg, #0f766e, #0e7490);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   box-shadow:
-    0 2px 4px rgb(15 118 110 / 18%),
-    0 16px 34px rgb(15 118 110 / 28%);
+    0 2px 4px rgb(37 99 235 / 18%),
+    0 16px 34px rgb(37 99 235 / 28%);
 }
 
 .home-primary-card .home-card-label,
 .home-primary-card > span:last-child {
-  color: #c4f1ec;
+  color: #dbeafe;
 }
 
 .home-primary-card strong {
@@ -359,11 +403,11 @@ h3 {
   padding: 20px;
   border-radius: 8px;
   color: #ecfeff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .home-hero .eyebrow {
-  color: #c4f1ec;
+  color: #dbeafe;
 }
 
 .home-hero h1 {
@@ -455,12 +499,12 @@ h3 {
   padding: 18px;
   border-radius: 8px;
   color: #ecfeff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .quick-action p {
   margin-top: 6px;
-  color: #c4f1ec;
+  color: #dbeafe;
 }
 
 .quick-action button {
@@ -468,7 +512,7 @@ h3 {
   border: 0;
   border-radius: 8px;
   padding: 10px 16px;
-  color: #0f766e;
+  color: #2563eb;
   background: #ffffff;
   font-weight: 800;
 }
@@ -521,7 +565,7 @@ h3 {
 }
 
 .section-heading a {
-  color: #0f766e;
+  color: #2563eb;
   font-size: 0.9rem;
   font-weight: 700;
   text-decoration: none;
@@ -631,15 +675,15 @@ h3 {
 }
 
 .option-button.selected {
-  border-color: #0f766e;
+  border-color: #2563eb;
   color: #ecfeff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .result-panel {
   padding: 18px;
   border-radius: 8px;
-  color: #064e3b;
+  color: #1e3a8a;
   background: #d1fae5;
 }
 
@@ -674,7 +718,7 @@ h3 {
 .input-panel textarea:focus,
 .option-button:focus-visible,
 .save-button:focus-visible {
-  outline: 3px solid #99f6e4;
+  outline: 3px solid #bfdbfe;
   outline-offset: 2px;
 }
 
@@ -683,14 +727,14 @@ h3 {
   border: 0;
   border-radius: 8px;
   color: #ffffff;
-  background: #0f766e;
+  background: #2563eb;
   font-size: 1rem;
   font-weight: 900;
 }
 
 .save-message {
   margin: -4px 0 0;
-  color: #0f766e;
+  color: #2563eb;
   font-weight: 800;
   text-align: center;
 }
@@ -741,7 +785,7 @@ h3 {
   place-items: center;
   border: 1px solid #dbe7e4;
   border-radius: 8px;
-  color: #0f766e;
+  color: #2563eb;
   background: #ffffff;
   font-size: 0.92rem;
   font-weight: 900;
@@ -835,15 +879,15 @@ h3 {
 }
 
 .work-option.selected {
-  border-color: #0f766e;
+  border-color: #2563eb;
   color: #ffffff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .work-card-option.selected {
   box-shadow:
-    0 2px 6px rgb(15 118 110 / 18%),
-    0 12px 24px rgb(15 118 110 / 18%);
+    0 2px 6px rgb(37 99 235 / 18%),
+    0 12px 24px rgb(37 99 235 / 18%);
 }
 
 .work-option:disabled {
@@ -970,7 +1014,7 @@ h3 {
 .work-section textarea:focus,
 .work-option:focus-visible,
 .work-save-button:focus-visible {
-  outline: 3px solid #99f6e4;
+  outline: 3px solid #bfdbfe;
   outline-offset: 2px;
 }
 
@@ -981,10 +1025,10 @@ h3 {
   border: 0;
   border-radius: 8px;
   color: #ffffff;
-  background: #0f766e;
+  background: #2563eb;
   box-shadow:
-    0 4px 8px rgb(15 118 110 / 18%),
-    0 18px 34px rgb(15 118 110 / 30%);
+    0 4px 8px rgb(37 99 235 / 18%),
+    0 18px 34px rgb(37 99 235 / 30%);
   font-size: 1.08rem;
   font-weight: 900;
 }
@@ -1134,7 +1178,7 @@ h3 {
   bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  color: #0f766e;
+  color: #2563eb;
   font-size: 0.72rem;
   line-height: 1;
 }
@@ -1209,7 +1253,7 @@ h3 {
 .settings-field input:focus,
 .settings-save-button:focus-visible,
 .settings-reset-button:focus-visible {
-  outline: 3px solid #99f6e4;
+  outline: 3px solid #bfdbfe;
   outline-offset: 2px;
 }
 
@@ -1230,7 +1274,7 @@ h3 {
 .settings-save-button {
   border: 0;
   color: #ffffff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .settings-reset-button {
@@ -1298,7 +1342,7 @@ h3 {
 .data-management-actions button:first-child {
   border: 0;
   color: #ffffff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .data-management-actions button:last-child {
@@ -1324,9 +1368,38 @@ h3 {
 
 .settings-message {
   margin: 0;
-  color: #0f766e;
+  color: #2563eb;
   font-weight: 900;
   text-align: center;
+}
+
+.app-info-card {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 20px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  color: #1e3a8a;
+  background: #eff6ff;
+  text-align: center;
+}
+
+.app-info-card strong {
+  font-size: 1.18rem;
+  line-height: 1.1;
+}
+
+.app-info-card span,
+.app-info-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.app-info-card b {
+  color: #2563eb;
 }
 
 .setup-page {
@@ -1341,13 +1414,13 @@ h3 {
   padding: 22px 20px;
   border-radius: 8px;
   color: #ecfeff;
-  background: #0f766e;
+  background: #2563eb;
 }
 
 .setup-hero .eyebrow,
 .setup-hero p:last-child {
   margin: 0;
-  color: #c4f1ec;
+  color: #dbeafe;
 }
 
 .setup-hero h1 {
@@ -1388,7 +1461,7 @@ h3 {
 
 .setup-field input:focus,
 .setup-save-button:focus-visible {
-  outline: 3px solid #99f6e4;
+  outline: 3px solid #bfdbfe;
   outline-offset: 2px;
 }
 
@@ -1399,8 +1472,8 @@ h3 {
   border: 0;
   border-radius: 8px;
   color: #ffffff;
-  background: #0f766e;
-  box-shadow: 0 16px 28px rgb(15 118 110 / 24%);
+  background: #2563eb;
+  box-shadow: 0 16px 28px rgb(37 99 235 / 24%);
   font-size: 1.05rem;
   font-weight: 900;
 }
