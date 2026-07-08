@@ -230,7 +230,7 @@ function SettingsPage() {
         <div>
           <span>데이터 관리</span>
           <strong>백업 / 복원</strong>
-          <p>설정, 근무 기록, 월별 마감 기록을 JSON 파일로 보관합니다.</p>
+          <p>설정과 근무 기록을 JSON 파일로 보관합니다.</p>
         </div>
         <div className="data-management-actions">
           <button type="button" onClick={handleBackup}>

@@ -38,9 +38,7 @@ function HomePage() {
   const currentMonth = monthKey(todayDate);
   const todayRecord = records.find((record) => record.date === todayDate);
   const monthlyRecords = records.filter((record) => monthKey(record.date) === currentMonth);
-  const productTotal = monthlyRecords
-    .filter((record) => !record.absence)
-    .reduce((total, record) => total + record.productPoint, 0);
+  const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const absenceCount = monthlyRecords.filter((record) => record.absence).length;
   const netUnhyu = monthlyRecords.reduce((total, record) => total + record.difference, 0);

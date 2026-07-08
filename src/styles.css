@@ -1857,54 +1857,6 @@ h3 {
   text-align: center;
 }
 
-.month-close-panel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid #dbe7e4;
-  border-radius: 8px;
-  background: #ffffff;
-}
-
-.month-close-panel h2,
-.month-close-panel p,
-.month-close-panel span {
-  margin: 0;
-}
-
-.month-close-panel p {
-  margin-top: 6px;
-  color: #64748b;
-  font-size: 0.92rem;
-  font-weight: 800;
-}
-
-.month-close-panel span {
-  display: block;
-  margin-top: 4px;
-  color: #94a3b8;
-  font-size: 0.84rem;
-}
-
-.month-close-panel button {
-  flex: 0 0 auto;
-  min-height: 44px;
-  border: 0;
-  border-radius: 8px;
-  padding: 0 16px;
-  color: #ffffff;
-  background: #2563eb;
-  font-weight: 900;
-}
-
-.month-close-panel button:disabled {
-  cursor: not-allowed;
-  color: #64748b;
-  background: #e2e8f0;
-}
-
 .summary-panel,
 .dashboard-grid,
 .home-page,
@@ -1936,8 +1888,7 @@ h3 {
 .app-info-card,
 .setup-hero,
 .setup-field,
-.statistics-header,
-.month-close-panel {
+.statistics-header {
   border-radius: var(--radius-card);
 }
 
@@ -1949,8 +1900,7 @@ h3 {
 .calendar-panel,
 .settings-current-annual,
 .settings-field,
-.setup-field,
-.month-close-panel {
+.setup-field {
   box-shadow: var(--shadow-card);
 }
 
@@ -1961,8 +1911,7 @@ h3 {
 .settings-reset-button,
 .settings-setup-button,
 .data-management-actions button,
-.setup-save-button,
-.month-close-panel button {
+.setup-save-button {
   min-height: var(--button-height);
   border-radius: var(--radius-card);
 }
@@ -1980,8 +1929,7 @@ h3 {
 .data-management-card span,
 .data-management-card p,
 .app-info-card span,
-.app-info-card p,
-.month-close-panel span {
+.app-info-card p {
   font-size: var(--font-caption);
 }
 

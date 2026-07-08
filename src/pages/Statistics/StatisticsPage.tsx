@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getRecords } from '../../storage/LocalStorage';
-import { getSettings, saveSettings } from '../../storage/SettingsStorage';
-import { getSummaryByMonth, saveMonthlySummary } from '../../storage/SummaryStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { monthKey, today } from '../../utils/date';
 
@@ -74,10 +72,8 @@ function getRecordChangeLabel(record: DailyRecord) {
 
 function StatisticsPage() {
   const records = getRecords();
-  const settings = getSettings();
   const todayMonth = monthKey(today());
   const [selectedMonth, setSelectedMonth] = useState(todayMonth);
-  const [closedSummary, setClosedSummary] = useState(() => getSummaryByMonth(todayMonth));
   const selectedDate = createMonthDate(selectedMonth);
   const selectedYear = selectedDate.getFullYear();
   const selectedMonthNumber = selectedDate.getMonth() + 1;
@@ -92,15 +88,9 @@ function StatisticsPage() {
   const monthlyRecords = records
     .filter((record) => monthKey(record.date) === selectedMonth)
     .sort((firstRecord, secondRecord) => secondRecord.date.localeCompare(firstRecord.date));
-  const productTotal = monthlyRecords
-    .filter((record) => !record.absence)
-    .reduce((total, record) => total + record.productPoint, 0);
+  const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const absenceRecords = monthlyRecords.filter((record) => record.absence);
-  const absenceDeductionDays = absenceRecords.reduce(
-    (total, record) => total + record.productPoint,
-    0,
-  );
   const unhyuIncrease = monthlyRecords
     .filter((record) => record.difference > 0)
     .reduce((total, record) => total + record.difference, 0);
@@ -124,11 +114,6 @@ function StatisticsPage() {
   const birthdayUseCount = monthlyRecords.filter(
     (record) => record.vacationType === 'birthday',
   ).length;
-  const isClosed = Boolean(closedSummary);
-
-  useEffect(() => {
-    setClosedSummary(getSummaryByMonth(selectedMonth));
-  }, [selectedMonth]);
 
   const moveMonth = (monthOffset: number) => {
     const nextMonth = new Date(selectedYear, selectedMonthNumber - 1 + monthOffset, 1);
@@ -143,36 +128,6 @@ function StatisticsPage() {
     setSelectedMonth(formatMonth(selectedYear, Number(month)));
   };
 
-  const handleCloseMonth = () => {
-    if (isClosed) {
-      return;
-    }
-
-    const shouldClose = window.confirm(`${selectedMonth}을 마감하시겠습니까?`);
-
-    if (!shouldClose) {
-      return;
-    }
-
-    const summary = saveMonthlySummary({
-      month: selectedMonth,
-      productTotal,
-      carTotal,
-      differenceTotal: netUnhyu,
-      recordCount: monthlyRecords.length,
-      closedAt: new Date().toISOString(),
-    });
-
-    if (netUnhyu > 0) {
-      saveSettings({
-        ...settings,
-        currentUnhyu: settings.currentUnhyu + netUnhyu,
-      });
-    }
-
-    setClosedSummary(summary);
-  };
-
   return (
     <main className="app-shell statistics-page statistics-v2-page">
       <section className="statistics-month-card" aria-label="통계 월 선택">
@@ -181,7 +136,7 @@ function StatisticsPage() {
             이전달
           </button>
           <div>
-            <p className="eyebrow">월말 정산</p>
+            <p className="eyebrow">월 통계</p>
             <h1>{selectedMonth}</h1>
             <span>{monthlyRecords.length}개 기록 기준</span>
           </div>
@@ -235,8 +190,8 @@ function StatisticsPage() {
             <dd>{absenceRecords.length}회</dd>
           </div>
           <div>
-            <dt>결근 차감</dt>
-            <dd>{formatNumber(absenceDeductionDays)}일</dd>
+            <dt>순 운휴</dt>
+            <dd className={getToneClassName(netUnhyu)}>{formatSignedNumber(netUnhyu)}</dd>
           </div>
         </dl>
       </section>
@@ -316,17 +271,6 @@ function StatisticsPage() {
         ) : (
           <p className="statistics-empty-message">선택한 월의 기록이 없습니다.</p>
         )}
-      </section>
-
-      <section className="month-close-panel" aria-label="월 마감">
-        <div>
-          <h2>월 마감</h2>
-          <p>{isClosed ? `${selectedMonth} 마감 완료` : `${selectedMonth} 마감 전`}</p>
-          {closedSummary ? <span>마감일: {closedSummary.closedAt.slice(0, 10)}</span> : null}
-        </div>
-        <button type="button" disabled={isClosed} onClick={handleCloseMonth}>
-          월 마감
-        </button>
       </section>
     </main>
   );
