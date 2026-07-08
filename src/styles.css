@@ -1,6 +1,33 @@
 :root {
-  color: #10201d;
-  background: #f8fafc;
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-soft: #dbeafe;
+  --color-primary-subtle: #eff6ff;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #10201d;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --radius-card: 8px;
+  --radius-pill: 999px;
+  --shadow-card:
+    0 1px 2px rgb(15 23 42 / 8%),
+    0 10px 24px rgb(15 23 42 / 10%);
+  --shadow-card-strong:
+    0 2px 4px rgb(37 99 235 / 18%),
+    0 16px 34px rgb(37 99 235 / 28%);
+  --shadow-pressed:
+    0 1px 2px rgb(15 23 42 / 8%),
+    0 5px 14px rgb(15 23 42 / 12%);
+  --page-gap: 16px;
+  --card-padding: 18px;
+  --button-height: 52px;
+  --font-title: 1.75rem;
+  --font-subtitle: 1.1rem;
+  --font-body: 0.95rem;
+  --font-caption: 0.88rem;
+  color: var(--color-text);
+  background: var(--color-background);
   font-family:
     Inter, Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-synthesis: none;
@@ -17,6 +44,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  color: var(--color-text);
+  background: var(--color-background);
 }
 
 #root {
@@ -30,6 +59,10 @@ a {
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 textarea {
@@ -126,12 +159,12 @@ h3 {
 
 h1 {
   margin-top: 4px;
-  font-size: 2rem;
+  font-size: var(--font-title);
   line-height: 1.15;
 }
 
 h2 {
-  font-size: 1.1rem;
+  font-size: var(--font-subtitle);
 }
 
 h3 {
@@ -207,7 +240,7 @@ h3 {
 }
 
 .home-v2-page {
-  gap: 14px;
+  gap: var(--page-gap);
   background:
     radial-gradient(circle at top left, rgb(219 234 254 / 68%), transparent 34%),
     #f8fafc;
@@ -234,13 +267,11 @@ h3 {
   width: 100%;
   gap: 12px;
   border: 0;
-  border-radius: 8px;
-  padding: 18px;
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
   color: #10201d;
   background: #ffffff;
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 8%),
-    0 10px 24px rgb(15 23 42 / 10%);
+  box-shadow: var(--shadow-card);
   text-align: left;
   transition:
     box-shadow 160ms ease,
@@ -249,9 +280,7 @@ h3 {
 
 .home-card:active {
   transform: translateY(1px);
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 8%),
-    0 5px 14px rgb(15 23 42 / 12%);
+  box-shadow: var(--shadow-pressed);
 }
 
 .home-card:focus-visible {
@@ -282,9 +311,7 @@ h3 {
   padding: 24px 20px;
   color: #ecfeff;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  box-shadow:
-    0 2px 4px rgb(37 99 235 / 18%),
-    0 16px 34px rgb(37 99 235 / 28%);
+  box-shadow: var(--shadow-card-strong);
 }
 
 .home-primary-card .home-card-label,
@@ -293,7 +320,7 @@ h3 {
 }
 
 .home-primary-card strong {
-  font-size: clamp(3.2rem, 18vw, 5.4rem);
+  font-size: clamp(4rem, 22vw, 6.6rem);
   letter-spacing: 0;
 }
 
@@ -352,10 +379,10 @@ h3 {
 .home-card-action {
   display: inline-flex;
   width: fit-content;
-  min-height: 36px;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 0 14px;
   color: #ffffff;
   background: #2563eb;
@@ -746,12 +773,12 @@ h3 {
 }
 
 .work-input-v2-page {
-  gap: 14px;
+  gap: var(--page-gap);
   padding-right: 16px;
   padding-bottom: 126px;
   padding-left: 16px;
   background:
-    radial-gradient(circle at top right, rgb(204 251 241 / 72%), transparent 34%),
+    radial-gradient(circle at top right, rgb(219 234 254 / 72%), transparent 34%),
     #f8fafc;
 }
 
@@ -800,10 +827,8 @@ h3 {
 
 .work-input-v2-page .work-section {
   border: 0;
-  padding: 18px;
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 8%),
-    0 10px 24px rgb(15 23 42 / 9%);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-card);
 }
 
 .work-section-heading {
@@ -885,9 +910,7 @@ h3 {
 }
 
 .work-card-option.selected {
-  box-shadow:
-    0 2px 6px rgb(37 99 235 / 18%),
-    0 12px 24px rgb(37 99 235 / 18%);
+  box-shadow: var(--shadow-card-strong);
 }
 
 .work-option:disabled {
@@ -925,9 +948,7 @@ h3 {
   gap: 16px;
   border: 0;
   padding: 20px;
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 8%),
-    0 14px 28px rgb(15 23 42 / 12%);
+  box-shadow: var(--shadow-card);
   text-align: left;
 }
 
@@ -1026,9 +1047,7 @@ h3 {
   border-radius: 8px;
   color: #ffffff;
   background: #2563eb;
-  box-shadow:
-    0 4px 8px rgb(37 99 235 / 18%),
-    0 18px 34px rgb(37 99 235 / 30%);
+  box-shadow: var(--shadow-card-strong);
   font-size: 1.08rem;
   font-weight: 900;
 }
@@ -1305,9 +1324,7 @@ h3 {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 8%),
-    0 10px 24px rgb(15 23 42 / 9%);
+  box-shadow: var(--shadow-card);
 }
 
 .data-management-card span,
@@ -1546,6 +1563,93 @@ h3 {
   cursor: not-allowed;
   color: #64748b;
   background: #e2e8f0;
+}
+
+.summary-panel,
+.dashboard-grid,
+.home-page,
+.input-page,
+.work-input-page,
+.calendar-page,
+.settings-page,
+.setup-page,
+.statistics-page {
+  gap: var(--page-gap);
+}
+
+.summary-panel > div,
+.dashboard-card,
+.home-card,
+.recent-record,
+.empty-message,
+.quick-action,
+.calculation-test,
+.vehicle-card,
+.input-panel,
+.result-panel,
+.work-section,
+.work-result,
+.calendar-panel,
+.settings-current-annual,
+.settings-field,
+.data-management-card,
+.app-info-card,
+.setup-hero,
+.setup-field,
+.statistics-header,
+.month-close-panel {
+  border-radius: var(--radius-card);
+}
+
+.summary-panel > div,
+.dashboard-card,
+.recent-record,
+.input-panel,
+.work-section,
+.calendar-panel,
+.settings-current-annual,
+.settings-field,
+.setup-field,
+.month-close-panel {
+  box-shadow: var(--shadow-card);
+}
+
+.quick-action button,
+.option-button,
+.save-button,
+.settings-save-button,
+.settings-reset-button,
+.settings-setup-button,
+.data-management-actions button,
+.setup-save-button,
+.month-close-panel button {
+  min-height: var(--button-height);
+  border-radius: var(--radius-card);
+}
+
+.eyebrow,
+.home-card-label,
+.dashboard-card p,
+.dashboard-card span,
+.home-today-card dt,
+.home-metric-grid dt,
+.work-section-heading span,
+.work-result-grid dt,
+.settings-current-annual span,
+.settings-current-annual p,
+.data-management-card span,
+.data-management-card p,
+.app-info-card span,
+.app-info-card p,
+.month-close-panel span {
+  font-size: var(--font-caption);
+}
+
+.dashboard-card strong,
+.settings-current-annual strong,
+.data-management-card strong {
+  font-size: 1.45rem;
+  line-height: 1.1;
 }
 
 @media (min-width: 720px) {

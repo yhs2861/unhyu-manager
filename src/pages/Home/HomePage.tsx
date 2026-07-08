@@ -47,6 +47,11 @@ function HomePage() {
   const annualVacation = getCurrentAnnualVacationRemaining(settings, todayDate);
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);
+  const birthdayVacationStatus = isBirthdayMonth
+    ? birthdayVacationRemaining > 0
+      ? '사용 가능'
+      : '사용 완료'
+    : '해당 없음';
 
   return (
     <main className="app-shell home-page home-v2-page">
@@ -85,7 +90,7 @@ function HomePage() {
                 <dd>{todayRecord.absence ? '결근' : carWorkLabels[todayRecord.carWork]}</dd>
               </div>
             </dl>
-            <span className="home-card-action">기록 수정</span>
+            <span className="home-card-action">오늘 기록 수정</span>
           </>
         ) : (
           <>
@@ -136,7 +141,7 @@ function HomePage() {
           </div>
           <div>
             <dt>생휴</dt>
-            <dd>{isBirthdayMonth ? birthdayVacationRemaining : 0}</dd>
+            <dd>{birthdayVacationStatus}</dd>
           </div>
         </dl>
         <span>
