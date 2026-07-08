@@ -2,11 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSettings, saveSettings } from '../../storage/SettingsStorage';
 import type { AppSettings } from '../../types/settings';
-
-type SetupFieldKey = Exclude<keyof AppSettings, 'isSetupCompleted'>;
+import {
+  clearZeroOnFocus,
+  createSettingsForm,
+  formToSettings,
+  restoreZeroOnBlur,
+  type NumericSettingsKey,
+} from '../../utils/settingsForm';
 
 type SetupField = {
-  key: SetupFieldKey;
+  key: NumericSettingsKey;
   label: string;
   step: string;
   max?: string;
@@ -34,18 +39,33 @@ function getInitialSettings(): AppSettings {
 
 function SetupPage() {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState<AppSettings>(() => getInitialSettings());
+  const [baseSettings] = useState<AppSettings>(() => getInitialSettings());
+  const [settingsForm, setSettingsForm] = useState(() => createSettingsForm(baseSettings));
 
-  const handleChange = (key: SetupFieldKey, value: string) => {
-    setSettings((previousSettings) => ({
+  const handleChange = (key: NumericSettingsKey, value: string) => {
+    setSettingsForm((previousSettings) => ({
       ...previousSettings,
-      [key]: Number(value),
+      [key]: value,
+    }));
+  };
+
+  const handleFocus = (key: NumericSettingsKey) => {
+    setSettingsForm((previousSettings) => ({
+      ...previousSettings,
+      [key]: clearZeroOnFocus(previousSettings[key]),
+    }));
+  };
+
+  const handleBlur = (key: NumericSettingsKey) => {
+    setSettingsForm((previousSettings) => ({
+      ...previousSettings,
+      [key]: restoreZeroOnBlur(previousSettings[key]),
     }));
   };
 
   const handleSave = () => {
     saveSettings({
-      ...settings,
+      ...formToSettings(settingsForm, baseSettings),
       isSetupCompleted: true,
     });
     navigate('/', { replace: true });
@@ -69,8 +89,10 @@ function SetupPage() {
               min="0"
               step={field.step}
               type="number"
-              value={settings[field.key]}
+              value={settingsForm[field.key]}
+              onBlur={() => handleBlur(field.key)}
               onChange={(event) => handleChange(field.key, event.target.value)}
+              onFocus={() => handleFocus(field.key)}
             />
           </label>
         ))}

@@ -11,8 +11,13 @@ import {
   getCurrentAnnualVacationRemaining,
 } from '../../utils/annualVacation';
 import { today } from '../../utils/date';
-
-type NumericSettingsKey = Exclude<keyof AppSettings, 'isSetupCompleted'>;
+import {
+  clearZeroOnFocus,
+  createSettingsForm,
+  formToSettings,
+  restoreZeroOnBlur,
+  type NumericSettingsKey,
+} from '../../utils/settingsForm';
 
 type SettingsField = {
   key: NumericSettingsKey;
@@ -60,7 +65,9 @@ function SettingsPage() {
   const navigate = useNavigate();
   const restoreInputRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState<AppSettings>(() => getSettings());
+  const [settingsForm, setSettingsForm] = useState(() => createSettingsForm(getSettings()));
   const [message, setMessage] = useState('');
+  const previewSettings = formToSettings(settingsForm, settings);
 
   const showMessage = (nextMessage: string) => {
     setMessage(nextMessage);
@@ -72,15 +79,16 @@ function SettingsPage() {
   };
 
   const handleChange = (key: NumericSettingsKey, value: string) => {
-    setSettings((previousSettings) => ({
+    setSettingsForm((previousSettings) => ({
       ...previousSettings,
-      [key]: Number(value),
+      [key]: value,
     }));
   };
 
   const handleSave = () => {
-    const savedSettings = saveSettings(settings);
+    const savedSettings = saveSettings(formToSettings(settingsForm, settings));
     setSettings(savedSettings);
+    setSettingsForm(createSettingsForm(savedSettings));
     showSavedMessage();
   };
 
@@ -90,15 +98,30 @@ function SettingsPage() {
       isSetupCompleted: true,
     });
     setSettings(defaultSettings);
+    setSettingsForm(createSettingsForm(defaultSettings));
     showSavedMessage();
   };
 
   const handleRestartSetup = () => {
     saveSettings({
-      ...settings,
+      ...formToSettings(settingsForm, settings),
       isSetupCompleted: false,
     });
     navigate('/setup');
+  };
+
+  const handleFocus = (key: NumericSettingsKey) => {
+    setSettingsForm((previousSettings) => ({
+      ...previousSettings,
+      [key]: clearZeroOnFocus(previousSettings[key]),
+    }));
+  };
+
+  const handleBlur = (key: NumericSettingsKey) => {
+    setSettingsForm((previousSettings) => ({
+      ...previousSettings,
+      [key]: restoreZeroOnBlur(previousSettings[key]),
+    }));
   };
 
   const handleBackup = () => {
@@ -148,6 +171,7 @@ function SettingsPage() {
       replaceRecords(backup.records);
       replaceSummaries(backup.summary);
       setSettings(restoredSettings);
+      setSettingsForm(createSettingsForm(restoredSettings));
       setMessage('복원이 완료되었습니다.');
       window.setTimeout(() => {
         navigate('/');
@@ -166,7 +190,7 @@ function SettingsPage() {
 
       <section className="settings-current-annual" aria-label="현재 기간 일휴">
         <span>현재 기간 일휴</span>
-        <strong>일휴 {getCurrentAnnualVacationRemaining(settings)}</strong>
+        <strong>일휴 {getCurrentAnnualVacationRemaining(previewSettings)}</strong>
         <p>{getCurrentAnnualVacationLabel()}</p>
       </section>
 
@@ -180,8 +204,10 @@ function SettingsPage() {
               min="0"
               step={field.step}
               type="number"
-              value={settings[field.key]}
+              value={settingsForm[field.key]}
+              onBlur={() => handleBlur(field.key)}
               onChange={(event) => handleChange(field.key, event.target.value)}
+              onFocus={() => handleFocus(field.key)}
             />
           </label>
         ))}
