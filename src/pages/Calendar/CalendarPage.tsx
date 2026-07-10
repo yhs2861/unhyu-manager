@@ -136,7 +136,7 @@ function getChangeBadge(record: DailyRecord) {
   }
 
   if (record.difference === 0) {
-    return { label: '0', tone: 'neutral' };
+    return null;
   }
 
   if (record.vacationType === 'ilhyu') {
@@ -152,7 +152,7 @@ function getChangeBadge(record: DailyRecord) {
   }
 
   if (record.vacationType === 'unhyu') {
-    return { label: '운휴', tone: 'unhyu' };
+    return { label: formatSignedNumber(record.difference), tone: 'negative' };
   }
 
   return { label: formatSignedNumber(record.difference), tone: 'negative' };
@@ -290,7 +290,7 @@ function CalendarPage() {
                 onClick={() => handleDateClick(calendarDay.date)}
               >
                 <span className="calendar-day-number">{calendarDay.day}</span>
-                {productBadge && carBadge && changeBadge ? (
+                {productBadge && carBadge ? (
                   <span className="calendar-record-lines" aria-hidden="true">
                     <span className={`calendar-record-pill ${productBadge.tone}`}>
                       {productBadge.label}
@@ -298,9 +298,11 @@ function CalendarPage() {
                     <span className={`calendar-record-pill ${carBadge.tone}`}>
                       {carBadge.label}
                     </span>
-                    <strong className={`calendar-record-pill change ${changeBadge.tone}`}>
-                      {changeBadge.label}
-                    </strong>
+                    {changeBadge ? (
+                      <strong className={`calendar-record-pill change ${changeBadge.tone}`}>
+                        {changeBadge.label}
+                      </strong>
+                    ) : null}
                   </span>
                 ) : null}
               </button>

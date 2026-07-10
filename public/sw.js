@@ -1,9 +1,20 @@
-const CACHE_NAME = 'unhyu-manager-v2';
+const CACHE_NAME = 'unhyu-manager-v4';
 const BASE_PATH = new URL(self.registration.scope).pathname;
-const APP_SHELL = [BASE_PATH, `${BASE_PATH}manifest.webmanifest`, `${BASE_PATH}icons/icon.svg`];
+const APP_SHELL = [
+  BASE_PATH,
+  `${BASE_PATH}manifest.webmanifest`,
+  `${BASE_PATH}icons/icon.svg`,
+  `${BASE_PATH}branding/company-mark-color.png`,
+];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        Promise.all(APP_SHELL.map((asset) => cache.add(asset).catch(() => undefined))),
+      ),
+  );
   self.skipWaiting();
 });
 

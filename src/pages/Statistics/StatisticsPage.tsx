@@ -110,13 +110,21 @@ function StatisticsPage() {
       .reduce((total, record) => total + record.difference, 0),
   );
   const netUnhyu = unhyuIncrease - unhyuDecrease;
-  const unhyuUseRecords = monthlyRecords.filter(
-    (record) => record.vacationType === 'unhyu' && record.difference < 0,
-  );
-  const unhyuUseDays = unhyuUseRecords.reduce(
-    (total, record) => total + Math.abs(record.difference),
-    0,
-  );
+  const unhyuUsageRecords = monthlyRecords.filter((record) => {
+    if (record.difference >= 0) {
+      return false;
+    }
+
+    const isFullDayAutomaticUnhyu =
+      record.productWork === 'dayNight' && record.carWork === 'day' && record.difference === -1;
+    const isHalfDayAutomaticUnhyu =
+      record.productWork === 'dayNight' &&
+      record.carWork === 'overtime' &&
+      record.difference === -0.5;
+    const isManualUnhyuUsage = record.vacationType === 'unhyu' && !isHalfDayAutomaticUnhyu;
+
+    return isFullDayAutomaticUnhyu || isManualUnhyuUsage;
+  });
   const annualUseCount = monthlyRecords.filter((record) => record.vacationType === 'ilhyu').length;
   const specialUseCount = monthlyRecords.filter(
     (record) => record.vacationType === 'special',
@@ -222,15 +230,13 @@ function StatisticsPage() {
           </span>
           <div>
             <span>휴가 사용</span>
-            <strong>{unhyuUseRecords.length + annualUseCount + specialUseCount + birthdayUseCount}회</strong>
+            <strong>{unhyuUsageRecords.length + annualUseCount + specialUseCount + birthdayUseCount}회</strong>
           </div>
         </div>
         <dl className="statistics-line-list">
           <div>
             <dt>운휴 사용</dt>
-            <dd>
-              {unhyuUseRecords.length}회 / {formatNumber(unhyuUseDays)}일
-            </dd>
+            <dd>{unhyuUsageRecords.length}회</dd>
           </div>
           <div>
             <dt>일휴 사용</dt>

@@ -45,10 +45,18 @@ function App() {
   if (showSplash) {
     return (
       <main className="splash-screen" aria-label="앱 시작 화면">
-        <img alt="" src="icons/icon.svg" />
-        <h1>운휴매니저</h1>
-        <p>광양항 근태관리</p>
-        <span>Version 2.0.0</span>
+        <div className="splash-logo-wrap">
+          <img
+            alt="회사 마크"
+            className="splash-company-logo"
+            src={`${import.meta.env.BASE_URL}branding/company-mark-color.png`}
+          />
+        </div>
+        <div className="splash-copy">
+          <h1>운휴매니저</h1>
+          <p>광양항 근태관리</p>
+          <span>Version 2.0.0</span>
+        </div>
       </main>
     );
   }
