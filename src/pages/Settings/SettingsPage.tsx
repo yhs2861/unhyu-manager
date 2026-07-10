@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { APP_VERSION } from '../../appVersion';
 import { getRecords, replaceRecords } from '../../storage/LocalStorage';
 import { getSettings, resetSettings, saveSettings } from '../../storage/SettingsStorage';
 import { getSummaries, replaceSummaries } from '../../storage/SummaryStorage';
@@ -129,7 +130,7 @@ function SettingsPage() {
 
   const handleBackup = () => {
     const backup: BackupFile = {
-      version: '2.0.0',
+      version: APP_VERSION,
       exportedAt: new Date().toISOString(),
       settings: getSettings(),
       records: getRecords(),
@@ -332,7 +333,7 @@ function SettingsPage() {
           ℹ️
         </span>
         <strong>운휴매니저</strong>
-        <span>Version 2.0.0</span>
+        <span>Version {APP_VERSION}</span>
         <p>Developer by</p>
         <b>양희수</b>
       </section>

@@ -7,6 +7,7 @@ import SettingsPage from './pages/Settings/SettingsPage';
 import SetupPage from './pages/Setup/SetupPage';
 import StatisticsPage from './pages/Statistics/StatisticsPage';
 import WorkInputPage from './pages/WorkInput/WorkInputPage';
+import { APP_VERSION } from './appVersion';
 import { getSettings } from './storage/SettingsStorage';
 
 function guardSetup(element: ReactElement, isSetupCompleted: boolean) {
@@ -55,7 +56,7 @@ function App() {
         <div className="splash-copy">
           <h1>운휴매니저</h1>
           <p>광양항 근태관리</p>
-          <span>Version 2.0.0</span>
+          <span>Version {APP_VERSION}</span>
         </div>
       </main>
     );
