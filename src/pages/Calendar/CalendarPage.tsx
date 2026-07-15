@@ -76,7 +76,9 @@ function getRecordChange(record: DailyRecord) {
     };
   }
 
-  const badges = getChangeBadges(record);
+  const badges = getCalendarDisplayBadges(record).filter(
+    (badge) => !badge.tone.startsWith('product-') && !badge.tone.startsWith('car-'),
+  );
 
   if (badges.length > 0) {
     return {
@@ -91,7 +93,13 @@ function getRecordChange(record: DailyRecord) {
   };
 }
 
-function getProductBadge(productWork: DailyRecord['productWork']) {
+type CalendarDisplayBadge = {
+  label: string;
+  tone: string;
+  isChange?: boolean;
+};
+
+function getProductBadge(productWork: DailyRecord['productWork']): CalendarDisplayBadge | null {
   if (productWork === 'day') {
     return { label: '주간', tone: 'product-day' };
   }
@@ -104,10 +112,10 @@ function getProductBadge(productWork: DailyRecord['productWork']) {
     return { label: '주야', tone: 'product-day-night' };
   }
 
-  return { label: '없음', tone: 'product-none' };
+  return null;
 }
 
-function getCarBadge(carWork: DailyRecord['carWork']) {
+function getCarBadge(carWork: DailyRecord['carWork']): CalendarDisplayBadge | null {
   if (carWork === 'product') {
     return { label: '제품', tone: 'car-product' };
   }
@@ -120,24 +128,16 @@ function getCarBadge(carWork: DailyRecord['carWork']) {
     return { label: '연장', tone: 'car-overtime' };
   }
 
-  return { label: '없음', tone: 'car-none' };
+  return null;
 }
 
-function getChangeBadges(record: DailyRecord) {
-  if (record.absence) {
-    return [{ label: '결근', tone: 'absence' }];
-  }
-
-  const badges: Array<{ label: string; tone: string }> = [];
-  const actualUnhyuChange = getActualUnhyuChange(record);
+function getVacationBadges(record: DailyRecord) {
+  const badges: CalendarDisplayBadge[] = [];
   const usages = getRecordVacationUsages(record);
+  const hasNonUnhyuVacation = usages.ilhyu > 0 || usages.special > 0 || usages.birthday > 0;
 
-  if (actualUnhyuChange > 0) {
-    badges.push({ label: formatSignedNumber(actualUnhyuChange), tone: 'positive' });
-  }
-
-  if (actualUnhyuChange < 0) {
-    badges.push({ label: formatSignedNumber(actualUnhyuChange), tone: 'negative' });
+  if (record.carWork === 'none' && usages.unhyu > 0 && !hasNonUnhyuVacation) {
+    badges.push({ label: '운휴', tone: 'negative' });
   }
 
   if (usages.ilhyu > 0) {
@@ -153,6 +153,53 @@ function getChangeBadges(record: DailyRecord) {
   }
 
   return badges;
+}
+
+function getUnhyuChangeBadge(record: DailyRecord): CalendarDisplayBadge | null {
+  const actualUnhyuChange = getActualUnhyuChange(record);
+
+  if (actualUnhyuChange === 0) {
+    return null;
+  }
+
+  return {
+    label: formatSignedNumber(actualUnhyuChange),
+    tone: actualUnhyuChange > 0 ? 'positive' : 'negative',
+    isChange: true,
+  };
+}
+
+function getCalendarDisplayBadges(record: DailyRecord) {
+  if (record.absence) {
+    return [{ label: '결근', tone: 'absence' }];
+  }
+
+  const badges: CalendarDisplayBadge[] = [];
+  const productBadge = getProductBadge(record.productWork);
+  const carBadge = getCarBadge(record.carWork);
+  const unhyuChangeBadge = getUnhyuChangeBadge(record);
+
+  if (productBadge) {
+    badges.push(productBadge);
+  }
+
+  if (carBadge) {
+    badges.push(carBadge);
+  }
+
+  badges.push(...getVacationBadges(record));
+
+  if (unhyuChangeBadge) {
+    badges.push(unhyuChangeBadge);
+  }
+
+  return badges;
+}
+
+function getChangeBadges(record: DailyRecord) {
+  return getCalendarDisplayBadges(record).filter(
+    (badge) => badge.isChange || badge.tone === 'absence',
+  );
 }
 
 function getRecordAriaLabel(date: string, record: DailyRecord) {
@@ -261,9 +308,7 @@ function CalendarPage() {
         <div className="calendar-grid">
           {calendarDays.map((calendarDay) => {
             const record = recordsByDate.get(calendarDay.date);
-            const productBadge = record ? getProductBadge(record.productWork) : null;
-            const carBadge = record ? getCarBadge(record.carWork) : null;
-            const changeBadges = record ? getChangeBadges(record) : [];
+            const displayBadges = record ? getCalendarDisplayBadges(record) : [];
             const isToday = calendarDay.date === todayDate;
             const isSelected = calendarDay.date === selectedDate;
             const className = [
@@ -287,22 +332,23 @@ function CalendarPage() {
                 onClick={() => handleDateClick(calendarDay.date)}
               >
                 <span className="calendar-day-number">{calendarDay.day}</span>
-                {productBadge && carBadge ? (
+                {displayBadges.length > 0 ? (
                   <span className="calendar-record-lines" aria-hidden="true">
-                    <span className={`calendar-record-pill ${productBadge.tone}`}>
-                      {productBadge.label}
-                    </span>
-                    <span className={`calendar-record-pill ${carBadge.tone}`}>
-                      {carBadge.label}
-                    </span>
-                    {changeBadges.map((changeBadge) => (
-                      <strong
-                        className={`calendar-record-pill change ${changeBadge.tone}`}
-                        key={`${changeBadge.tone}-${changeBadge.label}`}
-                      >
-                        {changeBadge.label}
-                      </strong>
-                    ))}
+                    {displayBadges.map((badge) => {
+                      const className = badge.isChange
+                        ? `calendar-record-pill change ${badge.tone}`
+                        : `calendar-record-pill ${badge.tone}`;
+
+                      return badge.isChange ? (
+                        <strong className={className} key={`${badge.tone}-${badge.label}`}>
+                          {badge.label}
+                        </strong>
+                      ) : (
+                        <span className={className} key={`${badge.tone}-${badge.label}`}>
+                          {badge.label}
+                        </span>
+                      );
+                    })}
                   </span>
                 ) : null}
               </button>
