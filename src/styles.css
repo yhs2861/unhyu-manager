@@ -1176,16 +1176,16 @@ h3 {
 
 .work-option-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .product-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .work-card-grid {
-  gap: 8px;
+  gap: 6px;
 }
 
 .work-option {
@@ -1199,9 +1199,9 @@ h3 {
 
 .work-card-option {
   display: grid;
-  min-height: 64px;
+  min-height: 56px;
   place-items: center;
-  gap: 4px;
+  gap: 3px;
   border-color: #e2e8f0;
   background: #ffffff;
   box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
@@ -1216,13 +1216,13 @@ h3 {
 }
 
 .work-card-option span {
-  font-size: 0.94rem;
+  font-size: 0.82rem;
   line-height: 1.1;
 }
 
 .work-card-option em {
   font-style: normal;
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1;
 }
 
@@ -1247,9 +1247,9 @@ h3 {
 
 .work-card-option.selected::after {
   top: 6px;
-  right: 8px;
+  right: 6px;
   color: #16a34a;
-  font-size: 0.84rem;
+  font-size: 0.74rem;
 }
 
 .work-card-option.vacation-unhyu.selected {
@@ -1275,6 +1275,14 @@ h3 {
 .work-option:disabled {
   cursor: not-allowed;
   opacity: 0.62;
+}
+
+.vacation-selection-summary {
+  margin: 10px 0 0;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-align: center;
 }
 
 .absence-section {
@@ -1377,6 +1385,26 @@ h3 {
 .work-result-grid dd {
   color: #10201d;
   font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.work-applied-summary {
+  display: grid;
+  gap: 4px;
+  border-radius: var(--radius-soft);
+  padding: 10px 12px;
+  background: rgb(255 255 255 / 64%);
+}
+
+.work-applied-summary span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.work-applied-summary p {
+  color: #10201d;
+  font-size: 0.95rem;
   font-weight: 900;
 }
 
@@ -1836,6 +1864,11 @@ h3 {
 .calendar-record-pill.car-day {
   color: #1d4ed8;
   background: #dbeafe;
+}
+
+.calendar-record-pill.car-product {
+  color: #047857;
+  background: #d1fae5;
 }
 
 .calendar-record-pill.car-overtime {

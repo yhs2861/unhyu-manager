@@ -3,6 +3,12 @@ import MonthNavigator from '../../components/MonthNavigator';
 import { getRecords } from '../../storage/LocalStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { monthKey, today } from '../../utils/date';
+import {
+  getActualUnhyuChange,
+  getRecordVacationUsages,
+  hasCountableUnhyuUsage,
+  hasVacationUsage,
+} from '../../utils/vacationUsage';
 
 const productWorkLabels: Record<DailyRecord['productWork'], string> = {
   none: '제품 없음',
@@ -13,15 +19,9 @@ const productWorkLabels: Record<DailyRecord['productWork'], string> = {
 
 const carWorkLabels: Record<DailyRecord['carWork'], string> = {
   none: '자동차 없음',
+  product: '자동차 제품',
   day: '자동차 주간',
   overtime: '자동차 연장',
-};
-
-const vacationLabels: Record<Exclude<DailyRecord['vacationType'], 'none'>, string> = {
-  unhyu: '운휴',
-  ilhyu: '일휴',
-  special: '특휴',
-  birthday: '생휴',
 };
 
 function createMonthDate(month: string) {
@@ -48,6 +48,10 @@ function formatSignedDayValue(value: number) {
   return `${formatSignedNumber(value)}일`;
 }
 
+function formatUsageCount(value: number) {
+  return value > 1 ? ` ${formatNumber(value)}` : '';
+}
+
 function getToneClassName(value: number) {
   if (value > 0) {
     return 'text-positive';
@@ -65,18 +69,27 @@ function getRecordChangeLabel(record: DailyRecord) {
     return '결근';
   }
 
-  if (record.difference > 0) {
-    return `운휴 ${formatSignedNumber(record.difference)}`;
+  const actualUnhyuChange = getActualUnhyuChange(record);
+  const usages = getRecordVacationUsages(record);
+  const labels: string[] = [];
+
+  if (actualUnhyuChange !== 0) {
+    labels.push(`운휴 ${formatSignedNumber(actualUnhyuChange)}`);
   }
 
-  if (record.difference < 0) {
-    const vacationLabel =
-      record.vacationType === 'none' ? '운휴' : vacationLabels[record.vacationType];
-
-    return `${vacationLabel} ${formatSignedNumber(record.difference)}`;
+  if (usages.ilhyu > 0) {
+    labels.push(`일휴${formatUsageCount(usages.ilhyu)}`);
   }
 
-  return '운휴 0';
+  if (usages.special > 0) {
+    labels.push(`특휴${formatUsageCount(usages.special)}`);
+  }
+
+  if (usages.birthday > 0) {
+    labels.push(`생휴${formatUsageCount(usages.birthday)}`);
+  }
+
+  return labels.length > 0 ? labels.join(' / ') : '운휴 0';
 }
 
 function StatisticsPage() {
@@ -102,35 +115,23 @@ function StatisticsPage() {
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const absenceRecords = monthlyRecords.filter((record) => record.absence);
   const unhyuIncrease = monthlyRecords
-    .filter((record) => record.difference > 0)
-    .reduce((total, record) => total + record.difference, 0);
+    .map((record) => getActualUnhyuChange(record))
+    .filter((actualUnhyuChange) => actualUnhyuChange > 0)
+    .reduce((total, actualUnhyuChange) => total + actualUnhyuChange, 0);
   const unhyuDecrease = Math.abs(
     monthlyRecords
-      .filter((record) => record.difference < 0)
-      .reduce((total, record) => total + record.difference, 0),
+      .map((record) => getActualUnhyuChange(record))
+      .filter((actualUnhyuChange) => actualUnhyuChange < 0)
+      .reduce((total, actualUnhyuChange) => total + actualUnhyuChange, 0),
   );
   const netUnhyu = unhyuIncrease - unhyuDecrease;
-  const unhyuUsageRecords = monthlyRecords.filter((record) => {
-    if (record.difference >= 0) {
-      return false;
-    }
-
-    const isFullDayAutomaticUnhyu =
-      record.productWork === 'dayNight' && record.carWork === 'day' && record.difference === -1;
-    const isHalfDayAutomaticUnhyu =
-      record.productWork === 'dayNight' &&
-      record.carWork === 'overtime' &&
-      record.difference === -0.5;
-    const isManualUnhyuUsage = record.vacationType === 'unhyu' && !isHalfDayAutomaticUnhyu;
-
-    return isFullDayAutomaticUnhyu || isManualUnhyuUsage;
-  });
-  const annualUseCount = monthlyRecords.filter((record) => record.vacationType === 'ilhyu').length;
-  const specialUseCount = monthlyRecords.filter(
-    (record) => record.vacationType === 'special',
+  const unhyuUsageRecords = monthlyRecords.filter(hasCountableUnhyuUsage);
+  const annualUseCount = monthlyRecords.filter((record) => hasVacationUsage(record, 'ilhyu')).length;
+  const specialUseCount = monthlyRecords.filter((record) =>
+    hasVacationUsage(record, 'special'),
   ).length;
-  const birthdayUseCount = monthlyRecords.filter(
-    (record) => record.vacationType === 'birthday',
+  const birthdayUseCount = monthlyRecords.filter((record) =>
+    hasVacationUsage(record, 'birthday'),
   ).length;
 
   const moveMonth = (monthOffset: number) => {

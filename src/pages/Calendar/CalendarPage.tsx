@@ -4,6 +4,7 @@ import MonthNavigator from '../../components/MonthNavigator';
 import { getRecords } from '../../storage/LocalStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { today } from '../../utils/date';
+import { getActualUnhyuChange, getRecordVacationUsages } from '../../utils/vacationUsage';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -16,15 +17,9 @@ const productWorkLabels: Record<DailyRecord['productWork'], string> = {
 
 const carWorkLabels: Record<DailyRecord['carWork'], string> = {
   none: '자동차 없음',
+  product: '자동차 제품',
   day: '자동차 주간',
   overtime: '자동차 연장',
-};
-
-const vacationLabels: Record<Exclude<DailyRecord['vacationType'], 'none'>, string> = {
-  unhyu: '운휴',
-  ilhyu: '일휴',
-  special: '특휴',
-  birthday: '생휴',
 };
 
 type CalendarDay = {
@@ -43,7 +38,13 @@ function toDateString(date: Date) {
 }
 
 function formatSignedNumber(value: number) {
-  return value > 0 ? `+${value}` : `${value}`;
+  const formattedValue = Number.isInteger(value) ? `${value}` : value.toFixed(1);
+
+  return value > 0 ? `+${formattedValue}` : formattedValue;
+}
+
+function formatUsageCount(value: number) {
+  return value > 1 ? ` ${Number.isInteger(value) ? value : value.toFixed(1)}` : '';
 }
 
 function getCalendarDays(currentMonth: Date): CalendarDay[] {
@@ -75,20 +76,12 @@ function getRecordChange(record: DailyRecord) {
     };
   }
 
-  if (record.difference > 0) {
-    return {
-      label: `운휴 ${formatSignedNumber(record.difference)}`,
-      tone: 'positive',
-    };
-  }
+  const badges = getChangeBadges(record);
 
-  if (record.difference < 0) {
-    const vacationLabel =
-      record.vacationType === 'none' ? '운휴' : vacationLabels[record.vacationType];
-
+  if (badges.length > 0) {
     return {
-      label: `${vacationLabel} ${formatSignedNumber(record.difference)}`,
-      tone: 'negative',
+      label: badges.map((badge) => badge.label).join(', '),
+      tone: badges.some((badge) => badge.tone === 'negative') ? 'negative' : badges[0].tone,
     };
   }
 
@@ -115,6 +108,10 @@ function getProductBadge(productWork: DailyRecord['productWork']) {
 }
 
 function getCarBadge(carWork: DailyRecord['carWork']) {
+  if (carWork === 'product') {
+    return { label: '제품', tone: 'car-product' };
+  }
+
   if (carWork === 'day') {
     return { label: '주간', tone: 'car-day' };
   }
@@ -126,36 +123,36 @@ function getCarBadge(carWork: DailyRecord['carWork']) {
   return { label: '없음', tone: 'car-none' };
 }
 
-function getChangeBadge(record: DailyRecord) {
+function getChangeBadges(record: DailyRecord) {
   if (record.absence) {
-    return { label: '결근', tone: 'absence' };
+    return [{ label: '결근', tone: 'absence' }];
   }
 
-  if (record.difference > 0) {
-    return { label: formatSignedNumber(record.difference), tone: 'positive' };
+  const badges: Array<{ label: string; tone: string }> = [];
+  const actualUnhyuChange = getActualUnhyuChange(record);
+  const usages = getRecordVacationUsages(record);
+
+  if (actualUnhyuChange > 0) {
+    badges.push({ label: formatSignedNumber(actualUnhyuChange), tone: 'positive' });
   }
 
-  if (record.difference === 0) {
-    return null;
+  if (actualUnhyuChange < 0) {
+    badges.push({ label: formatSignedNumber(actualUnhyuChange), tone: 'negative' });
   }
 
-  if (record.vacationType === 'ilhyu') {
-    return { label: '일휴', tone: 'annual' };
+  if (usages.ilhyu > 0) {
+    badges.push({ label: `일휴${formatUsageCount(usages.ilhyu)}`, tone: 'annual' });
   }
 
-  if (record.vacationType === 'special') {
-    return { label: '특휴', tone: 'special' };
+  if (usages.special > 0) {
+    badges.push({ label: `특휴${formatUsageCount(usages.special)}`, tone: 'special' });
   }
 
-  if (record.vacationType === 'birthday') {
-    return { label: '생휴', tone: 'birthday' };
+  if (usages.birthday > 0) {
+    badges.push({ label: `생휴${formatUsageCount(usages.birthday)}`, tone: 'birthday' });
   }
 
-  if (record.vacationType === 'unhyu') {
-    return { label: formatSignedNumber(record.difference), tone: 'negative' };
-  }
-
-  return { label: formatSignedNumber(record.difference), tone: 'negative' };
+  return badges;
 }
 
 function getRecordAriaLabel(date: string, record: DailyRecord) {
@@ -266,7 +263,7 @@ function CalendarPage() {
             const record = recordsByDate.get(calendarDay.date);
             const productBadge = record ? getProductBadge(record.productWork) : null;
             const carBadge = record ? getCarBadge(record.carWork) : null;
-            const changeBadge = record ? getChangeBadge(record) : null;
+            const changeBadges = record ? getChangeBadges(record) : [];
             const isToday = calendarDay.date === todayDate;
             const isSelected = calendarDay.date === selectedDate;
             const className = [
@@ -298,11 +295,14 @@ function CalendarPage() {
                     <span className={`calendar-record-pill ${carBadge.tone}`}>
                       {carBadge.label}
                     </span>
-                    {changeBadge ? (
-                      <strong className={`calendar-record-pill change ${changeBadge.tone}`}>
+                    {changeBadges.map((changeBadge) => (
+                      <strong
+                        className={`calendar-record-pill change ${changeBadge.tone}`}
+                        key={`${changeBadge.tone}-${changeBadge.label}`}
+                      >
                         {changeBadge.label}
                       </strong>
-                    ) : null}
+                    ))}
                   </span>
                 ) : null}
               </button>

@@ -13,6 +13,7 @@ import {
 } from '../../utils/birthdayVacation';
 import { formatDateWithWeekday, monthKey, today } from '../../utils/date';
 import { getTotalUnhyu } from '../../utils/unhyu';
+import { getActualUnhyuChange } from '../../utils/vacationUsage';
 
 const productWorkLabels: Record<ProductWork, string> = {
   none: '없음',
@@ -23,6 +24,7 @@ const productWorkLabels: Record<ProductWork, string> = {
 
 const carWorkLabels: Record<CarWork, string> = {
   none: '없음',
+  product: '제품',
   day: '주간',
   overtime: '연장',
 };
@@ -67,7 +69,10 @@ function HomePage() {
   const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const absenceCount = monthlyRecords.filter((record) => record.absence).length;
-  const netUnhyu = monthlyRecords.reduce((total, record) => total + record.difference, 0);
+  const netUnhyu = monthlyRecords.reduce(
+    (total, record) => total + getActualUnhyuChange(record),
+    0,
+  );
   const annualVacation = getCurrentAnnualVacationRemaining(settings, todayDate);
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);

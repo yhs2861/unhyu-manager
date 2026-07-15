@@ -1,6 +1,7 @@
 import type { DailyRecord } from '../types/dailyRecord';
 import type { AppSettings } from '../types/settings';
 import { monthKey } from './date';
+import { hasVacationUsage } from './vacationUsage';
 
 export function isBirthdayVacationMonth(settings: AppSettings, date: string) {
   const month = Number(date.slice(5, 7));
@@ -17,7 +18,7 @@ export function hasBirthdayVacationRecord(
   return records.some((record) => {
     return (
       record.id !== excludedRecordId &&
-      record.vacationType === 'birthday' &&
+      hasVacationUsage(record, 'birthday') &&
       monthKey(record.date) === targetMonth
     );
   });

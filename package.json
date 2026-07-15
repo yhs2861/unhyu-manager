@@ -1,7 +1,7 @@
 {
   "name": "unhyu-manager",
   "private": true,
-  "version": "2.2.7",
+  "version": "2.2.8",
   "homepage": "https://yhs2861.github.io/unhyu-manager/",
   "type": "module",
   "scripts": {

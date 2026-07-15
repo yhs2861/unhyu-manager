@@ -1,4 +1,4 @@
-import type { CarWork, ProductWork, VacationType } from './work';
+import type { CarWork, ProductWork, VacationType, VacationUsages } from './work';
 
 export interface DailyRecord {
   id: string;
@@ -10,6 +10,7 @@ export interface DailyRecord {
   difference: number;
   absence: boolean;
   vacationType: VacationType;
+  vacationUsages?: VacationUsages;
   memo: string;
   createdAt: string;
   updatedAt: string;

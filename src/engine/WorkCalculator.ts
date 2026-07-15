@@ -7,7 +7,7 @@ const productDockPoints: Record<ProductWork, number> = {
   dayNight: 2,
 };
 
-const carDockPoints: Record<CarWork, number> = {
+const carDockPoints: Record<Exclude<CarWork, 'product'>, number> = {
   none: 0,
   day: 1,
   overtime: 1.5,
@@ -15,7 +15,7 @@ const carDockPoints: Record<CarWork, number> = {
 
 export function calculate(product: ProductWork, car: CarWork): WorkCalculationResult {
   const productPoint = productDockPoints[product];
-  const carPoint = carDockPoints[car];
+  const carPoint = car === 'product' ? productPoint : carDockPoints[car];
 
   return {
     productPoint,

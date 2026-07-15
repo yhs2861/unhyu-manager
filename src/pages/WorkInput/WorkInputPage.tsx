@@ -13,6 +13,17 @@ import {
 import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { addDays, formatDateWithWeekday, today } from '../../utils/date';
 import { getTotalUnhyu } from '../../utils/unhyu';
+import {
+  compactVacationUsages,
+  createEmptyVacationUsages,
+  getActualUnhyuChange,
+  getPrimaryVacationType,
+  getRecordVacationUsages,
+  getVacationUsageTotal,
+  normalizeVacationUsages,
+  vacationUsageTypes,
+  type VacationUsageType,
+} from '../../utils/vacationUsage';
 
 type Option<T> = {
   icon?: string;
@@ -24,11 +35,12 @@ const productOptions: Option<ProductWork>[] = [
   { icon: '—', label: '없음', value: 'none' },
   { icon: '☀️', label: '주간', value: 'day' },
   { icon: '🌙', label: '야간', value: 'night' },
-  { icon: '⏱️', label: '주간+야간', value: 'dayNight' },
+  { icon: '⏱️', label: '주야', value: 'dayNight' },
 ];
 
 const carOptions: Option<CarWork>[] = [
   { icon: '—', label: '없음', value: 'none' },
+  { icon: '⚓', label: '제품', value: 'product' },
   { icon: '🚗', label: '주간', value: 'day' },
   { icon: '⏰', label: '연장', value: 'overtime' },
 ];
@@ -49,7 +61,9 @@ function createRecordId() {
 }
 
 function formatDifference(difference: number) {
-  return difference > 0 ? `+${difference}` : `${difference}`;
+  const formattedValue = Number.isInteger(difference) ? `${difference}` : difference.toFixed(1);
+
+  return difference > 0 ? `+${formattedValue}` : formattedValue;
 }
 
 function getResultClassName(difference: number) {
@@ -69,35 +83,117 @@ function showTemporaryMessage(message: string, setMessage: (message: string) => 
   window.setTimeout(() => setMessage(''), 2200);
 }
 
+function formatVacationUsage(value: number) {
+  return Number.isInteger(value) ? `${value}` : value.toFixed(1);
+}
+
+function trimVacationUsagesToRequired(
+  usages: ReturnType<typeof createEmptyVacationUsages>,
+  requiredVacation: number,
+) {
+  const trimmedUsages = createEmptyVacationUsages();
+  let remainingVacation = requiredVacation;
+
+  vacationUsageTypes.forEach((type) => {
+    const nextValue = Math.min(usages[type], remainingVacation);
+    trimmedUsages[type] = nextValue;
+    remainingVacation -= nextValue;
+  });
+
+  return trimmedUsages;
+}
+
+function getDefaultVacationUsages(productWork: ProductWork, carWork: CarWork) {
+  const defaultUsages = createEmptyVacationUsages();
+
+  if (productWork === 'dayNight' && carWork === 'day') {
+    defaultUsages.unhyu = 1;
+  }
+
+  return defaultUsages;
+}
+
+function getVacationTypeCapacity(type: VacationUsageType, requiredVacation: number) {
+  return type === 'special' || type === 'birthday'
+    ? Math.min(requiredVacation, 1)
+    : requiredVacation;
+}
+
+function getNextVacationUsages(
+  previousUsages: ReturnType<typeof createEmptyVacationUsages>,
+  selectedType: VacationUsageType,
+  requiredVacation: number,
+) {
+  const nextUsages = normalizeVacationUsages(previousUsages);
+
+  if (nextUsages[selectedType] > 0) {
+    nextUsages[selectedType] = 0;
+    return nextUsages;
+  }
+
+  if (requiredVacation <= 1) {
+    const replacementUsages = createEmptyVacationUsages();
+    replacementUsages[selectedType] = requiredVacation;
+    return replacementUsages;
+  }
+
+  const currentTotal = getVacationUsageTotal(nextUsages);
+  const selectedCapacity = getVacationTypeCapacity(selectedType, requiredVacation);
+
+  if (currentTotal === 0) {
+    nextUsages[selectedType] = selectedCapacity;
+    return nextUsages;
+  }
+
+  if (currentTotal < requiredVacation) {
+    nextUsages[selectedType] = Math.min(selectedCapacity, requiredVacation - currentTotal);
+    return nextUsages;
+  }
+
+  const activeTypes = vacationUsageTypes.filter((type) => nextUsages[type] > 0);
+
+  if (activeTypes.length === 1) {
+    nextUsages[activeTypes[0]] = requiredVacation - 1;
+    nextUsages[selectedType] = 1;
+    return nextUsages;
+  }
+
+  const replacementUsages = createEmptyVacationUsages();
+  replacementUsages[activeTypes[0]] = 1;
+  replacementUsages[selectedType] = 1;
+  return replacementUsages;
+}
+
 function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direction: 1 | -1) {
   const nextSettings = { ...settings };
+  const actualUnhyuChange = getActualUnhyuChange(record);
 
   if (record.absence) {
     return nextSettings;
   }
 
-  if (record.difference > 0) {
-    nextSettings.currentUnhyu += record.difference * direction;
+  if (actualUnhyuChange > 0) {
+    nextSettings.currentUnhyu += actualUnhyuChange * direction;
     return nextSettings;
   }
 
-  if (record.difference >= 0) {
+  if (record.difference >= 0 && actualUnhyuChange === 0) {
     return nextSettings;
   }
 
-  const requiredVacation = Math.abs(record.difference);
+  const usages = getRecordVacationUsages(record);
 
-  if (record.vacationType === 'unhyu') {
-    nextSettings.currentUnhyu -= requiredVacation * direction;
+  if (usages.unhyu > 0) {
+    nextSettings.currentUnhyu -= usages.unhyu * direction;
   }
 
-  if (record.vacationType === 'ilhyu') {
-    const target = getCurrentAnnualVacationTarget();
-    nextSettings[target] -= Math.ceil(requiredVacation) * direction;
+  if (usages.ilhyu > 0) {
+    const target = getCurrentAnnualVacationTarget(record.date);
+    nextSettings[target] -= usages.ilhyu * direction;
   }
 
-  if (record.vacationType === 'special') {
-    nextSettings.specialVacation -= 1 * direction;
+  if (usages.special > 0) {
+    nextSettings.specialVacation -= usages.special * direction;
   }
 
   return nextSettings;
@@ -112,25 +208,29 @@ function validateVacationBalance(
     return '';
   }
 
-  const requiredVacation = Math.abs(record.difference);
+  const usages = getRecordVacationUsages(record);
 
-  if (record.vacationType === 'unhyu' && getTotalUnhyu(settings) < requiredVacation) {
+  if (usages.unhyu > 0 && getTotalUnhyu(settings) < usages.unhyu) {
     return '운휴가 부족합니다.';
   }
 
-  if (record.vacationType === 'special' && settings.specialVacation <= 0) {
+  if (usages.special > 0 && settings.specialVacation < usages.special) {
     return '특휴가 없습니다.';
   }
 
-  if (record.vacationType === 'ilhyu') {
-    const target = getCurrentAnnualVacationTarget();
+  if (usages.ilhyu > 0) {
+    const target = getCurrentAnnualVacationTarget(record.date);
 
-    if (settings[target] <= 0) {
+    if (settings[target] < usages.ilhyu) {
       return '일휴가 없습니다.';
     }
   }
 
-  if (record.vacationType === 'birthday') {
+  if (usages.birthday > 0) {
+    if (usages.birthday > 1) {
+      return '생휴는 한 달에 1개만 사용할 수 있습니다.';
+    }
+
     if (!isBirthdayVacationMonth(settings, record.date)) {
       return '생휴는 생일이 있는 달에만 사용할 수 있습니다.';
     }
@@ -150,11 +250,15 @@ function WorkInputPage() {
   const [existingRecord, setExistingRecord] = useState<DailyRecord | undefined>(() =>
     getRecordByDate(date),
   );
-  const [productWork, setProductWork] = useState<ProductWork>('none');
-  const [carWork, setCarWork] = useState<CarWork>('none');
-  const [absence, setAbsence] = useState(false);
-  const [vacationType, setVacationType] = useState<VacationType>('none');
-  const [memo, setMemo] = useState('');
+  const [productWork, setProductWork] = useState<ProductWork>(
+    () => existingRecord?.productWork ?? 'none',
+  );
+  const [carWork, setCarWork] = useState<CarWork>(() => existingRecord?.carWork ?? 'none');
+  const [absence, setAbsence] = useState(() => existingRecord?.absence ?? false);
+  const [vacationUsages, setVacationUsages] = useState(() =>
+    existingRecord ? getRecordVacationUsages(existingRecord) : createEmptyVacationUsages(),
+  );
+  const [memo, setMemo] = useState(() => existingRecord?.memo ?? '');
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
@@ -165,7 +269,9 @@ function WorkInputPage() {
     setProductWork(existingRecord?.productWork ?? 'none');
     setCarWork(existingRecord?.carWork ?? 'none');
     setAbsence(existingRecord?.absence ?? false);
-    setVacationType(existingRecord?.vacationType ?? 'none');
+    setVacationUsages(
+      existingRecord ? getRecordVacationUsages(existingRecord) : createEmptyVacationUsages(),
+    );
     setMemo(existingRecord?.memo ?? '');
   }, [existingRecord]);
 
@@ -187,11 +293,13 @@ function WorkInputPage() {
   const isAutomaticUnhyuDeduction =
     !isAbsenceRecord &&
     productWork === 'dayNight' &&
-    (selectedCarWork === 'day' || selectedCarWork === 'overtime') &&
+    selectedCarWork === 'overtime' &&
     recordCalculation.difference < 0;
   const needsVacation =
     !isAbsenceRecord && recordCalculation.difference < 0 && !isAutomaticUnhyuDeduction;
-  const currentAnnualVacation = getCurrentAnnualVacationRemaining(settings);
+  const requiredVacation = needsVacation ? Math.abs(recordCalculation.difference) : 0;
+  const selectedVacationTotal = getVacationUsageTotal(vacationUsages);
+  const currentAnnualVacation = getCurrentAnnualVacationRemaining(settings, date);
   const totalUnhyu = getTotalUnhyu(settings);
   const navigateToDate = (nextDate: string) => {
     navigate(`/input?date=${nextDate}`);
@@ -199,14 +307,19 @@ function WorkInputPage() {
 
   useEffect(() => {
     if (!needsVacation) {
-      setVacationType('none');
+      setVacationUsages(createEmptyVacationUsages());
+      return;
     }
-  }, [needsVacation]);
+
+    setVacationUsages((previousUsages) =>
+      trimVacationUsagesToRequired(normalizeVacationUsages(previousUsages), requiredVacation),
+    );
+  }, [needsVacation, requiredVacation]);
 
   useEffect(() => {
     if (isAbsenceRecord) {
       setCarWork('none');
-      setVacationType('none');
+      setVacationUsages(createEmptyVacationUsages());
     }
   }, [isAbsenceRecord]);
 
@@ -216,13 +329,53 @@ function WorkInputPage() {
     }
   }, [canMarkAbsence]);
 
+  useEffect(() => {
+    if (productWork === 'none' && carWork === 'product') {
+      setCarWork('none');
+    }
+  }, [carWork, productWork]);
+
+  const handleProductWorkSelect = (nextProductWork: ProductWork) => {
+    if (nextProductWork === productWork) {
+      return;
+    }
+
+    const nextCarWork =
+      nextProductWork === 'none' && carWork === 'product' ? 'none' : selectedCarWork;
+    setProductWork(nextProductWork);
+    setVacationUsages(getDefaultVacationUsages(nextProductWork, nextCarWork));
+  };
+
+  const handleCarWorkSelect = (nextCarWork: CarWork) => {
+    if (nextCarWork === selectedCarWork) {
+      return;
+    }
+
+    setCarWork(nextCarWork);
+    setVacationUsages(getDefaultVacationUsages(productWork, nextCarWork));
+  };
+
+  const handleVacationSelect = (type: VacationUsageType) => {
+    setVacationUsages((previousUsages) =>
+      getNextVacationUsages(previousUsages, type, requiredVacation),
+    );
+  };
+
   const handleSave = () => {
-    if (needsVacation && vacationType === 'none') {
-      showTemporaryMessage('휴가처리를 선택하세요.', setSnackbarMessage);
+    if (needsVacation && selectedVacationTotal !== requiredVacation) {
+      showTemporaryMessage(
+        `휴가처리 ${formatVacationUsage(requiredVacation)}일을 선택하세요.`,
+        setSnackbarMessage,
+      );
       return;
     }
 
     const now = new Date().toISOString();
+    const selectedVacationUsages = needsVacation
+      ? compactVacationUsages(vacationUsages)
+      : isAutomaticUnhyuDeduction
+        ? compactVacationUsages({ unhyu: Math.abs(recordCalculation.difference) })
+        : undefined;
     const record: DailyRecord = {
       id: existingRecord?.id ?? createRecordId(),
       date,
@@ -232,7 +385,10 @@ function WorkInputPage() {
       carPoint: recordCalculation.carPoint,
       difference: recordCalculation.difference,
       absence: isAbsenceRecord,
-      vacationType: needsVacation ? vacationType : isAutomaticUnhyuDeduction ? 'unhyu' : 'none',
+      vacationType: selectedVacationUsages
+        ? getPrimaryVacationType(selectedVacationUsages)
+        : 'none',
+      vacationUsages: selectedVacationUsages,
       memo,
       createdAt: existingRecord?.createdAt ?? now,
       updatedAt: now,
@@ -328,7 +484,7 @@ function WorkInputPage() {
               }
               key={option.value}
               type="button"
-              onClick={() => setProductWork(option.value)}
+              onClick={() => handleProductWorkSelect(option.value)}
             >
               <em aria-hidden="true">{option.icon}</em>
               <span>{option.label}</span>
@@ -356,10 +512,10 @@ function WorkInputPage() {
                   ? 'work-option work-card-option selected'
                   : 'work-option work-card-option'
               }
-              disabled={isAbsenceRecord}
+              disabled={isAbsenceRecord || (option.value === 'product' && productWork === 'none')}
               key={option.value}
               type="button"
-              onClick={() => setCarWork(option.value)}
+              onClick={() => handleCarWorkSelect(option.value)}
             >
               <em aria-hidden="true">{option.icon}</em>
               <span>{option.label}</span>
@@ -376,27 +532,42 @@ function WorkInputPage() {
             </span>
             <div>
               <h2 id="vacation-title">휴가처리</h2>
-              <span>필수 선택</span>
+              <span>
+                총 {formatVacationUsage(requiredVacation)}일 중{' '}
+                {formatVacationUsage(selectedVacationTotal)}일 선택
+              </span>
             </div>
           </div>
           <div className="work-option-grid work-card-grid">
             {vacationOptions.map((option) => (
               <button
-                aria-pressed={vacationType === option.value}
+                aria-pressed={vacationUsages[option.value] > 0}
                 className={
-                  vacationType === option.value
+                  vacationUsages[option.value] > 0
                     ? `work-option work-card-option vacation-${option.value} selected`
                     : `work-option work-card-option vacation-${option.value}`
                 }
                 key={option.value}
                 type="button"
-                onClick={() => setVacationType(option.value)}
+                onClick={() => handleVacationSelect(option.value)}
               >
                 <em aria-hidden="true">{option.icon}</em>
-                <span>{option.label}</span>
+                <span>
+                  {option.label}
+                  {vacationUsages[option.value] > 0
+                    ? ` ${formatVacationUsage(vacationUsages[option.value])}`
+                    : ''}
+                </span>
               </button>
             ))}
           </div>
+          <p className="vacation-selection-summary">
+            {selectedVacationTotal === requiredVacation
+              ? '선택 완료'
+              : `필요 ${formatVacationUsage(
+                  Math.max(requiredVacation - selectedVacationTotal, 0),
+                )}일 남음`}
+          </p>
         </section>
       ) : null}
 
@@ -424,6 +595,25 @@ function WorkInputPage() {
             <dd>{isAbsenceRecord ? '0' : formatDifference(recordCalculation.difference)}</dd>
           </div>
         </dl>
+        {needsVacation && selectedVacationTotal > 0 ? (
+          <div className="work-applied-summary">
+            <span>적용 결과</span>
+            <p>
+              {vacationUsages.unhyu > 0
+                ? `운휴 -${formatVacationUsage(vacationUsages.unhyu)} `
+                : ''}
+              {vacationUsages.ilhyu > 0
+                ? `일휴 -${formatVacationUsage(vacationUsages.ilhyu)} `
+                : ''}
+              {vacationUsages.special > 0
+                ? `특휴 -${formatVacationUsage(vacationUsages.special)} `
+                : ''}
+              {vacationUsages.birthday > 0
+                ? `생휴 -${formatVacationUsage(vacationUsages.birthday)}`
+                : ''}
+            </p>
+          </div>
+        ) : null}
       </section>
 
       <section className="work-section" aria-labelledby="memo-title">
