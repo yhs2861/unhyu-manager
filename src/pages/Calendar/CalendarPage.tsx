@@ -81,6 +81,7 @@ function getRecordChange(record: DailyRecord) {
       badge.type !== 'productDay' &&
       badge.type !== 'productNight' &&
       badge.type !== 'productDayNight' &&
+      badge.type !== 'productNone' &&
       badge.type !== 'carWork',
   );
 
@@ -103,6 +104,7 @@ type CalendarBadgeType =
   | 'productDay'
   | 'productNight'
   | 'productDayNight'
+  | 'productNone'
   | 'carWork'
   | 'unhyu'
   | 'annual'
@@ -130,6 +132,10 @@ function getProductBadge(productWork: DailyRecord['productWork']): CalendarDispl
 
   if (productWork === 'dayNight') {
     return { label: '주야', type: 'productDayNight' };
+  }
+
+  if (productWork === 'none') {
+    return { label: '없음', type: 'productNone' };
   }
 
   return null;
