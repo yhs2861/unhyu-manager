@@ -1859,6 +1859,11 @@ h3 {
   background: #ffedd5;
 }
 
+.calendar-record-pill.productNone {
+  color: #4b5563;
+  background: #f3f4f6;
+}
+
 .calendar-record-pill.product-none,
 .calendar-record-pill.car-none,
 .calendar-record-pill.neutral {
