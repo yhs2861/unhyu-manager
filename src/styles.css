@@ -1839,17 +1839,12 @@ h3 {
   white-space: nowrap;
 }
 
-.calendar-record-pill.product-day {
-  color: #047857;
-  background: #ccfbf1;
+.calendar-record-pill.productWork {
+  color: #1e3a8a;
+  background: #dbeafe;
 }
 
-.calendar-record-pill.product-night {
-  color: #6d28d9;
-  background: #ede9fe;
-}
-
-.calendar-record-pill.product-day-night {
+.calendar-record-pill.carWork {
   color: #c2410c;
   background: #ffedd5;
 }
@@ -1861,49 +1856,30 @@ h3 {
   background: #f1f5f9;
 }
 
-.calendar-record-pill.car-day {
-  color: #1d4ed8;
-  background: #dbeafe;
+.calendar-record-pill.unhyu,
+.calendar-record-pill.change.unhyuDecrease {
+  color: #0369a1;
+  background: #e0f2fe;
 }
 
-.calendar-record-pill.car-product {
+.calendar-record-pill.annual {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.calendar-record-pill.special {
+  color: #7e22ce;
+  background: #f3e8ff;
+}
+
+.calendar-record-pill.birthday {
+  color: #be185d;
+  background: #fce7f3;
+}
+
+.calendar-record-pill.change.unhyuIncrease {
   color: #047857;
-  background: #d1fae5;
-}
-
-.calendar-record-pill.car-overtime {
-  color: #1e40af;
-  background: #bfdbfe;
-}
-
-.calendar-record-pill.change.positive {
-  color: #15803d;
-  background: #dcfce7;
-}
-
-.calendar-record-pill.change.negative {
-  color: #dc2626;
-  background: #fee2e2;
-}
-
-.calendar-record-pill.change.unhyu {
-  color: #15803d;
-  background: #dcfce7;
-}
-
-.calendar-record-pill.change.annual {
-  color: #1d4ed8;
-  background: #dbeafe;
-}
-
-.calendar-record-pill.change.special {
-  color: #6d28d9;
-  background: #ede9fe;
-}
-
-.calendar-record-pill.change.birthday {
-  color: #0f766e;
-  background: #ccfbf1;
+  background: #ecfdf5;
 }
 
 .calendar-record-pill.change.absence {
