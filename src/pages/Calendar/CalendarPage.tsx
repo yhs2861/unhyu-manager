@@ -77,13 +77,15 @@ function getRecordChange(record: DailyRecord) {
   }
 
   const badges = getCalendarDisplayBadges(record).filter(
-    (badge) => !badge.tone.startsWith('product-') && !badge.tone.startsWith('car-'),
+    (badge) => badge.type !== 'productWork' && badge.type !== 'carWork',
   );
 
   if (badges.length > 0) {
     return {
       label: badges.map((badge) => badge.label).join(', '),
-      tone: badges.some((badge) => badge.tone === 'negative') ? 'negative' : badges[0].tone,
+      tone: badges.some((badge) => badge.type === 'unhyuDecrease')
+        ? 'unhyuDecrease'
+        : badges[0].type,
     };
   }
 
@@ -93,23 +95,35 @@ function getRecordChange(record: DailyRecord) {
   };
 }
 
+type CalendarBadgeType =
+  | 'productWork'
+  | 'carWork'
+  | 'unhyu'
+  | 'annual'
+  | 'special'
+  | 'birthday'
+  | 'unhyuIncrease'
+  | 'unhyuDecrease'
+  | 'absence'
+  | 'neutral';
+
 type CalendarDisplayBadge = {
   label: string;
-  tone: string;
+  type: CalendarBadgeType;
   isChange?: boolean;
 };
 
 function getProductBadge(productWork: DailyRecord['productWork']): CalendarDisplayBadge | null {
   if (productWork === 'day') {
-    return { label: '주간', tone: 'product-day' };
+    return { label: '주간', type: 'productWork' };
   }
 
   if (productWork === 'night') {
-    return { label: '야간', tone: 'product-night' };
+    return { label: '야간', type: 'productWork' };
   }
 
   if (productWork === 'dayNight') {
-    return { label: '주야', tone: 'product-day-night' };
+    return { label: '주야', type: 'productWork' };
   }
 
   return null;
@@ -117,15 +131,15 @@ function getProductBadge(productWork: DailyRecord['productWork']): CalendarDispl
 
 function getCarBadge(carWork: DailyRecord['carWork']): CalendarDisplayBadge | null {
   if (carWork === 'product') {
-    return { label: '제품', tone: 'car-product' };
+    return { label: '제품', type: 'carWork' };
   }
 
   if (carWork === 'day') {
-    return { label: '주간', tone: 'car-day' };
+    return { label: '주간', type: 'carWork' };
   }
 
   if (carWork === 'overtime') {
-    return { label: '연장', tone: 'car-overtime' };
+    return { label: '연장', type: 'carWork' };
   }
 
   return null;
@@ -137,19 +151,19 @@ function getVacationBadges(record: DailyRecord) {
   const hasNonUnhyuVacation = usages.ilhyu > 0 || usages.special > 0 || usages.birthday > 0;
 
   if (record.carWork === 'none' && usages.unhyu > 0 && !hasNonUnhyuVacation) {
-    badges.push({ label: '운휴', tone: 'negative' });
+    badges.push({ label: '운휴', type: 'unhyu' });
   }
 
   if (usages.ilhyu > 0) {
-    badges.push({ label: `일휴${formatUsageCount(usages.ilhyu)}`, tone: 'annual' });
+    badges.push({ label: `일휴${formatUsageCount(usages.ilhyu)}`, type: 'annual' });
   }
 
   if (usages.special > 0) {
-    badges.push({ label: `특휴${formatUsageCount(usages.special)}`, tone: 'special' });
+    badges.push({ label: `특휴${formatUsageCount(usages.special)}`, type: 'special' });
   }
 
   if (usages.birthday > 0) {
-    badges.push({ label: `생휴${formatUsageCount(usages.birthday)}`, tone: 'birthday' });
+    badges.push({ label: `생휴${formatUsageCount(usages.birthday)}`, type: 'birthday' });
   }
 
   return badges;
@@ -164,14 +178,14 @@ function getUnhyuChangeBadge(record: DailyRecord): CalendarDisplayBadge | null {
 
   return {
     label: formatSignedNumber(actualUnhyuChange),
-    tone: actualUnhyuChange > 0 ? 'positive' : 'negative',
+    type: actualUnhyuChange > 0 ? 'unhyuIncrease' : 'unhyuDecrease',
     isChange: true,
   };
 }
 
-function getCalendarDisplayBadges(record: DailyRecord) {
+function getCalendarDisplayBadges(record: DailyRecord): CalendarDisplayBadge[] {
   if (record.absence) {
-    return [{ label: '결근', tone: 'absence' }];
+    return [{ label: '결근', type: 'absence' }];
   }
 
   const badges: CalendarDisplayBadge[] = [];
@@ -198,7 +212,7 @@ function getCalendarDisplayBadges(record: DailyRecord) {
 
 function getChangeBadges(record: DailyRecord) {
   return getCalendarDisplayBadges(record).filter(
-    (badge) => badge.isChange || badge.tone === 'absence',
+    (badge) => badge.isChange || badge.type === 'absence',
   );
 }
 
@@ -336,15 +350,15 @@ function CalendarPage() {
                   <span className="calendar-record-lines" aria-hidden="true">
                     {displayBadges.map((badge) => {
                       const className = badge.isChange
-                        ? `calendar-record-pill change ${badge.tone}`
-                        : `calendar-record-pill ${badge.tone}`;
+                        ? `calendar-record-pill change ${badge.type}`
+                        : `calendar-record-pill ${badge.type}`;
 
                       return badge.isChange ? (
-                        <strong className={className} key={`${badge.tone}-${badge.label}`}>
+                        <strong className={className} key={`${badge.type}-${badge.label}`}>
                           {badge.label}
                         </strong>
                       ) : (
-                        <span className={className} key={`${badge.tone}-${badge.label}`}>
+                        <span className={className} key={`${badge.type}-${badge.label}`}>
                           {badge.label}
                         </span>
                       );
