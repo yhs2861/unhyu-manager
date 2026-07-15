@@ -40,9 +40,9 @@ const productOptions: Option<ProductWork>[] = [
 
 const carOptions: Option<CarWork>[] = [
   { icon: '—', label: '없음', value: 'none' },
-  { icon: '⚓', label: '제품', value: 'product' },
   { icon: '🚗', label: '주간', value: 'day' },
   { icon: '⏰', label: '연장', value: 'overtime' },
+  { icon: '⚓', label: '제품', value: 'product' },
 ];
 
 const vacationOptions: Option<Exclude<VacationType, 'none'>>[] = [
@@ -113,16 +113,27 @@ function getDefaultVacationUsages(productWork: ProductWork, carWork: CarWork) {
   return defaultUsages;
 }
 
-function getVacationTypeCapacity(type: VacationUsageType, requiredVacation: number) {
-  return type === 'special' || type === 'birthday'
-    ? Math.min(requiredVacation, 1)
-    : requiredVacation;
+function getVacationTypeCapacity(
+  type: VacationUsageType,
+  requiredVacation: number,
+  availableSpecialVacation: number,
+) {
+  if (type === 'special') {
+    return Math.min(requiredVacation, availableSpecialVacation);
+  }
+
+  if (type === 'birthday') {
+    return Math.min(requiredVacation, 1);
+  }
+
+  return requiredVacation;
 }
 
 function getNextVacationUsages(
   previousUsages: ReturnType<typeof createEmptyVacationUsages>,
   selectedType: VacationUsageType,
   requiredVacation: number,
+  availableSpecialVacation: number,
 ) {
   const nextUsages = normalizeVacationUsages(previousUsages);
 
@@ -138,7 +149,15 @@ function getNextVacationUsages(
   }
 
   const currentTotal = getVacationUsageTotal(nextUsages);
-  const selectedCapacity = getVacationTypeCapacity(selectedType, requiredVacation);
+  const selectedCapacity = getVacationTypeCapacity(
+    selectedType,
+    requiredVacation,
+    availableSpecialVacation,
+  );
+
+  if (selectedCapacity <= 0) {
+    return nextUsages;
+  }
 
   if (currentTotal === 0) {
     nextUsages[selectedType] = selectedCapacity;
@@ -299,6 +318,9 @@ function WorkInputPage() {
     !isAbsenceRecord && recordCalculation.difference < 0 && !isAutomaticUnhyuDeduction;
   const requiredVacation = needsVacation ? Math.abs(recordCalculation.difference) : 0;
   const selectedVacationTotal = getVacationUsageTotal(vacationUsages);
+  const availableSpecialVacation =
+    settings.specialVacation +
+    (existingRecord ? getRecordVacationUsages(existingRecord).special : 0);
   const currentAnnualVacation = getCurrentAnnualVacationRemaining(settings, date);
   const totalUnhyu = getTotalUnhyu(settings);
   const navigateToDate = (nextDate: string) => {
@@ -357,7 +379,7 @@ function WorkInputPage() {
 
   const handleVacationSelect = (type: VacationUsageType) => {
     setVacationUsages((previousUsages) =>
-      getNextVacationUsages(previousUsages, type, requiredVacation),
+      getNextVacationUsages(previousUsages, type, requiredVacation, availableSpecialVacation),
     );
   };
 
