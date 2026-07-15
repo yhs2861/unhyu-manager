@@ -77,7 +77,11 @@ function getRecordChange(record: DailyRecord) {
   }
 
   const badges = getCalendarDisplayBadges(record).filter(
-    (badge) => badge.type !== 'productWork' && badge.type !== 'carWork',
+    (badge) =>
+      badge.type !== 'productDay' &&
+      badge.type !== 'productNight' &&
+      badge.type !== 'productDayNight' &&
+      badge.type !== 'carWork',
   );
 
   if (badges.length > 0) {
@@ -96,7 +100,9 @@ function getRecordChange(record: DailyRecord) {
 }
 
 type CalendarBadgeType =
-  | 'productWork'
+  | 'productDay'
+  | 'productNight'
+  | 'productDayNight'
   | 'carWork'
   | 'unhyu'
   | 'annual'
@@ -115,15 +121,15 @@ type CalendarDisplayBadge = {
 
 function getProductBadge(productWork: DailyRecord['productWork']): CalendarDisplayBadge | null {
   if (productWork === 'day') {
-    return { label: '주간', type: 'productWork' };
+    return { label: '주간', type: 'productDay' };
   }
 
   if (productWork === 'night') {
-    return { label: '야간', type: 'productWork' };
+    return { label: '야간', type: 'productNight' };
   }
 
   if (productWork === 'dayNight') {
-    return { label: '주야', type: 'productWork' };
+    return { label: '주야', type: 'productDayNight' };
   }
 
   return null;

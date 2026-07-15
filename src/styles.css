@@ -1839,9 +1839,19 @@ h3 {
   white-space: nowrap;
 }
 
-.calendar-record-pill.productWork {
-  color: #1e3a8a;
-  background: #dbeafe;
+.calendar-record-pill.productDay {
+  color: #047857;
+  background: #ccfbf1;
+}
+
+.calendar-record-pill.productNight {
+  color: #6d28d9;
+  background: #ede9fe;
+}
+
+.calendar-record-pill.productDayNight {
+  color: #c2410c;
+  background: #ffedd5;
 }
 
 .calendar-record-pill.carWork {
