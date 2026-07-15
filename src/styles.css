@@ -1856,10 +1856,14 @@ h3 {
   background: #f1f5f9;
 }
 
-.calendar-record-pill.unhyu,
-.calendar-record-pill.change.unhyuDecrease {
+.calendar-record-pill.unhyu {
   color: #0369a1;
   background: #e0f2fe;
+}
+
+.calendar-record-pill.change.unhyuDecrease {
+  color: #b91c1c;
+  background: #fee2e2;
 }
 
 .calendar-record-pill.annual {
