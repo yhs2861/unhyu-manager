@@ -9,6 +9,7 @@ import {
   hasCountableUnhyuUsage,
   hasVacationUsage,
 } from '../../utils/vacationUsage';
+import { getRecordAbsenceUnits } from '../../utils/absence';
 
 const productWorkLabels: Record<DailyRecord['productWork'], string> = {
   none: '제품 없음',
@@ -65,10 +66,6 @@ function getToneClassName(value: number) {
 }
 
 function getRecordChangeLabel(record: DailyRecord) {
-  if (record.absence) {
-    return '결근';
-  }
-
   const actualUnhyuChange = getActualUnhyuChange(record);
   const usages = getRecordVacationUsages(record);
   const labels: string[] = [];
@@ -88,6 +85,9 @@ function getRecordChangeLabel(record: DailyRecord) {
   if (usages.birthday > 0) {
     labels.push(`생휴${formatUsageCount(usages.birthday)}`);
   }
+
+  const absenceUnits = getRecordAbsenceUnits(record);
+  if (absenceUnits > 0) labels.push(`결근${formatUsageCount(absenceUnits)}`);
 
   return labels.length > 0 ? labels.join(' / ') : '운휴 0';
 }
@@ -113,7 +113,10 @@ function StatisticsPage() {
     .sort((firstRecord, secondRecord) => secondRecord.date.localeCompare(firstRecord.date));
   const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
-  const absenceRecords = monthlyRecords.filter((record) => record.absence);
+  const absenceCount = monthlyRecords.reduce(
+    (total, record) => total + getRecordAbsenceUnits(record),
+    0,
+  );
   const unhyuIncrease = monthlyRecords
     .map((record) => getActualUnhyuChange(record))
     .filter((actualUnhyuChange) => actualUnhyuChange > 0)
@@ -187,7 +190,7 @@ function StatisticsPage() {
           </div>
           <div className="absence">
             <dt>결근</dt>
-            <dd>{absenceRecords.length}회</dd>
+            <dd>{absenceCount}회</dd>
           </div>
           <div className={getToneClassName(netUnhyu)}>
             <dt>순 운휴</dt>
@@ -253,7 +256,7 @@ function StatisticsPage() {
           </div>
           <div>
             <dt>결근</dt>
-            <dd>{absenceRecords.length}회</dd>
+            <dd>{absenceCount}회</dd>
           </div>
         </dl>
       </section>
@@ -275,12 +278,12 @@ function StatisticsPage() {
                 <div>
                   <time dateTime={record.date}>{record.date.slice(5)}</time>
                   <strong className={record.absence ? 'record-pill absence' : 'record-pill'}>
-                    {record.absence ? '결근' : getRecordChangeLabel(record)}
+                    {getRecordChangeLabel(record)}
                   </strong>
                 </div>
                 <p>
                   {productWorkLabels[record.productWork]} /{' '}
-                  {record.absence ? '자동차 없음' : carWorkLabels[record.carWork]}
+                  {carWorkLabels[record.carWork]}
                 </p>
               </li>
             ))}

@@ -38,7 +38,7 @@ export function getVacationUsageTotal(usages: VacationUsages) {
 export function getRecordVacationUsages(record: DailyRecord): Required<VacationUsages> {
   const usages = createEmptyVacationUsages();
 
-  if (record.absence || record.difference >= 0) {
+  if (record.difference >= 0) {
     return usages;
   }
 
@@ -46,6 +46,12 @@ export function getRecordVacationUsages(record: DailyRecord): Required<VacationU
 
   if (getVacationUsageTotal(normalizedSavedUsages) > 0) {
     return normalizedSavedUsages;
+  }
+
+  // Legacy absence-only records never consumed vacation. Composite records carry
+  // explicit vacationUsages, handled above.
+  if (record.absence) {
+    return usages;
   }
 
   const requiredVacation = Math.abs(record.difference);
@@ -72,10 +78,6 @@ export function getRecordVacationUsages(record: DailyRecord): Required<VacationU
 }
 
 export function getActualUnhyuChange(record: DailyRecord) {
-  if (record.absence) {
-    return 0;
-  }
-
   if (record.difference > 0) {
     return record.difference;
   }

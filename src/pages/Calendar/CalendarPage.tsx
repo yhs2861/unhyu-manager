@@ -5,6 +5,7 @@ import { getRecords } from '../../storage/LocalStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { today } from '../../utils/date';
 import { getActualUnhyuChange, getRecordVacationUsages } from '../../utils/vacationUsage';
+import { getRecordAbsenceUnits } from '../../utils/absence';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -69,13 +70,6 @@ function getCalendarDays(currentMonth: Date): CalendarDay[] {
 }
 
 function getRecordChange(record: DailyRecord) {
-  if (record.absence) {
-    return {
-      label: '결근',
-      tone: 'absence',
-    };
-  }
-
   const badges = getCalendarDisplayBadges(record).filter(
     (badge) =>
       badge.type !== 'productDay' &&
@@ -162,7 +156,7 @@ function getVacationBadges(record: DailyRecord) {
   const usages = getRecordVacationUsages(record);
   const hasNonUnhyuVacation = usages.ilhyu > 0 || usages.special > 0 || usages.birthday > 0;
 
-  if (record.carWork === 'none' && usages.unhyu > 0 && !hasNonUnhyuVacation) {
+  if (record.carWork === 'none' && usages.unhyu > 0 && !hasNonUnhyuVacation && !record.absence) {
     badges.push({ label: '운휴', type: 'unhyu' });
   }
 
@@ -196,10 +190,6 @@ function getUnhyuChangeBadge(record: DailyRecord): CalendarDisplayBadge | null {
 }
 
 function getCalendarDisplayBadges(record: DailyRecord): CalendarDisplayBadge[] {
-  if (record.absence) {
-    return [{ label: '결근', type: 'absence' }];
-  }
-
   const badges: CalendarDisplayBadge[] = [];
   const productBadge = getProductBadge(record.productWork);
   const carBadge = getCarBadge(record.carWork);
@@ -214,6 +204,11 @@ function getCalendarDisplayBadges(record: DailyRecord): CalendarDisplayBadge[] {
   }
 
   badges.push(...getVacationBadges(record));
+
+  const absenceUnits = getRecordAbsenceUnits(record);
+  if (absenceUnits > 0) {
+    badges.push({ label: `결근${formatUsageCount(absenceUnits)}`, type: 'absence' });
+  }
 
   if (unhyuChangeBadge) {
     badges.push(unhyuChangeBadge);
