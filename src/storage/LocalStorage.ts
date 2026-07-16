@@ -1,5 +1,6 @@
 import type { DailyRecord } from '../types/dailyRecord';
 import { compactVacationUsages } from '../utils/vacationUsage';
+import { normalizeAbsenceUnits } from '../utils/absence';
 
 const STORAGE_KEY = 'unhyu-manager-records';
 
@@ -27,6 +28,7 @@ function readRecords(): DailyRecord[] {
     return parsedValue.map((record) => ({
       ...record,
       absence: record.absence === true,
+      absenceUnits: normalizeAbsenceUnits(record.absenceUnits),
       vacationUsages: compactVacationUsages(record.vacationUsages),
     }));
   } catch {
@@ -42,6 +44,7 @@ function normalizeRecords(records: DailyRecord[]) {
   return records.map((record) => ({
     ...record,
     absence: record.absence === true,
+    absenceUnits: normalizeAbsenceUnits(record.absenceUnits),
     vacationUsages: compactVacationUsages(record.vacationUsages),
   }));
 }

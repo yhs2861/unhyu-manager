@@ -9,6 +9,7 @@ export interface DailyRecord {
   carPoint: number;
   difference: number;
   absence: boolean;
+  absenceUnits?: number;
   vacationType: VacationType;
   vacationUsages?: VacationUsages;
   memo: string;

@@ -13,6 +13,7 @@ import {
 import { hasBirthdayVacationRecord, isBirthdayVacationMonth } from '../../utils/birthdayVacation';
 import { addDays, formatDateWithWeekday, today } from '../../utils/date';
 import { getTotalUnhyu } from '../../utils/unhyu';
+import { getRecordAbsenceUnits } from '../../utils/absence';
 import {
   compactVacationUsages,
   createEmptyVacationUsages,
@@ -187,10 +188,6 @@ function applyRecordToSettings(settings: AppSettings, record: DailyRecord, direc
   const nextSettings = { ...settings };
   const actualUnhyuChange = getActualUnhyuChange(record);
 
-  if (record.absence) {
-    return nextSettings;
-  }
-
   if (actualUnhyuChange > 0) {
     nextSettings.currentUnhyu += actualUnhyuChange * direction;
     return nextSettings;
@@ -223,7 +220,7 @@ function validateVacationBalance(
   record: DailyRecord,
   records: DailyRecord[],
 ) {
-  if (record.absence || record.difference >= 0) {
+  if (record.difference >= 0 && getVacationUsageTotal(record.vacationUsages ?? {}) === 0) {
     return '';
   }
 
@@ -273,7 +270,9 @@ function WorkInputPage() {
     () => existingRecord?.productWork ?? 'none',
   );
   const [carWork, setCarWork] = useState<CarWork>(() => existingRecord?.carWork ?? 'none');
-  const [absence, setAbsence] = useState(() => existingRecord?.absence ?? false);
+  const [absenceUnits, setAbsenceUnits] = useState(() =>
+    existingRecord ? getRecordAbsenceUnits(existingRecord) : 0,
+  );
   const [vacationUsages, setVacationUsages] = useState(() =>
     existingRecord ? getRecordVacationUsages(existingRecord) : createEmptyVacationUsages(),
   );
@@ -287,7 +286,7 @@ function WorkInputPage() {
   useEffect(() => {
     setProductWork(existingRecord?.productWork ?? 'none');
     setCarWork(existingRecord?.carWork ?? 'none');
-    setAbsence(existingRecord?.absence ?? false);
+    setAbsenceUnits(existingRecord ? getRecordAbsenceUnits(existingRecord) : 0);
     setVacationUsages(
       existingRecord ? getRecordVacationUsages(existingRecord) : createEmptyVacationUsages(),
     );
@@ -295,29 +294,18 @@ function WorkInputPage() {
   }, [existingRecord]);
 
   const settings = getSettings();
-  const canMarkAbsence = productWork !== 'none';
-  const isAbsenceRecord = absence && canMarkAbsence;
-  const selectedCarWork = isAbsenceRecord ? 'none' : carWork;
-  const calculation = useMemo(
-    () => calculate(productWork, selectedCarWork),
-    [productWork, selectedCarWork],
-  );
-  const recordCalculation = isAbsenceRecord
-    ? {
-        productPoint: calculate(productWork, 'none').productPoint,
-        carPoint: 0,
-        difference: 0,
-      }
-    : calculation;
+  const calculation = useMemo(() => calculate(productWork, carWork), [productWork, carWork]);
+  const recordCalculation = calculation;
+  const canMarkAbsence =
+    productWork === 'dayNight' && carWork !== 'overtime' &&
+    (carWork === 'none' || carWork === 'day' || carWork === 'product');
+  const isAbsenceRecord = absenceUnits > 0 && canMarkAbsence;
   const isAutomaticUnhyuDeduction =
-    !isAbsenceRecord &&
-    productWork === 'dayNight' &&
-    selectedCarWork === 'overtime' &&
-    recordCalculation.difference < 0;
-  const needsVacation =
-    !isAbsenceRecord && recordCalculation.difference < 0 && !isAutomaticUnhyuDeduction;
+    productWork === 'dayNight' && carWork === 'overtime' && recordCalculation.difference < 0;
+  const needsVacation = recordCalculation.difference < 0 && !isAutomaticUnhyuDeduction;
   const requiredVacation = needsVacation ? Math.abs(recordCalculation.difference) : 0;
   const selectedVacationTotal = getVacationUsageTotal(vacationUsages);
+  const selectedTreatmentTotal = selectedVacationTotal + absenceUnits;
   const availableSpecialVacation =
     settings.specialVacation +
     (existingRecord ? getRecordVacationUsages(existingRecord).special : 0);
@@ -334,20 +322,16 @@ function WorkInputPage() {
     }
 
     setVacationUsages((previousUsages) =>
-      trimVacationUsagesToRequired(normalizeVacationUsages(previousUsages), requiredVacation),
+      trimVacationUsagesToRequired(
+        normalizeVacationUsages(previousUsages),
+        Math.max(requiredVacation - absenceUnits, 0),
+      ),
     );
-  }, [needsVacation, requiredVacation]);
-
-  useEffect(() => {
-    if (isAbsenceRecord) {
-      setCarWork('none');
-      setVacationUsages(createEmptyVacationUsages());
-    }
-  }, [isAbsenceRecord]);
+  }, [needsVacation, requiredVacation, absenceUnits]);
 
   useEffect(() => {
     if (!canMarkAbsence) {
-      setAbsence(false);
+      setAbsenceUnits(0);
     }
   }, [canMarkAbsence]);
 
@@ -363,30 +347,56 @@ function WorkInputPage() {
     }
 
     const nextCarWork =
-      nextProductWork === 'none' && carWork === 'product' ? 'none' : selectedCarWork;
+      nextProductWork === 'none' && carWork === 'product' ? 'none' : carWork;
     setProductWork(nextProductWork);
     setVacationUsages(getDefaultVacationUsages(nextProductWork, nextCarWork));
   };
 
   const handleCarWorkSelect = (nextCarWork: CarWork) => {
-    if (nextCarWork === selectedCarWork) {
+    if (nextCarWork === carWork) {
       return;
     }
 
     setCarWork(nextCarWork);
+    setAbsenceUnits(0);
     setVacationUsages(getDefaultVacationUsages(productWork, nextCarWork));
   };
 
   const handleVacationSelect = (type: VacationUsageType) => {
-    setVacationUsages((previousUsages) =>
-      getNextVacationUsages(previousUsages, type, requiredVacation, availableSpecialVacation),
+    const nextUsages = getNextVacationUsages(
+      vacationUsages,
+      type,
+      absenceUnits > 0 ? Math.max(requiredVacation - absenceUnits, 1) : requiredVacation,
+      availableSpecialVacation,
     );
+    const nextTotal = getVacationUsageTotal(nextUsages);
+    setVacationUsages(nextUsages);
+    if (absenceUnits > 0 && nextTotal + absenceUnits > requiredVacation) {
+      setAbsenceUnits(Math.max(requiredVacation - nextTotal, 0));
+    }
+  };
+
+  const handleAbsenceSelect = () => {
+    if (!canMarkAbsence) return;
+    if (carWork === 'product') {
+      setAbsenceUnits((units) => (units > 0 ? 0 : 1));
+      return;
+    }
+    if (absenceUnits > 0) {
+      setAbsenceUnits(0);
+      return;
+    }
+    const nextUnits = Math.max(requiredVacation - selectedVacationTotal, 0);
+    setAbsenceUnits(nextUnits || 1);
+    if (selectedVacationTotal >= requiredVacation && requiredVacation > 0) {
+      setVacationUsages((usages) => trimVacationUsagesToRequired(usages, requiredVacation - 1));
+    }
   };
 
   const handleSave = () => {
-    if (needsVacation && selectedVacationTotal !== requiredVacation) {
+    if (needsVacation && selectedTreatmentTotal !== requiredVacation) {
       showTemporaryMessage(
-        `휴가처리 ${formatVacationUsage(requiredVacation)}일을 선택하세요.`,
+        `휴가 또는 결근 ${formatVacationUsage(requiredVacation)}일을 선택하세요.`,
         setSnackbarMessage,
       );
       return;
@@ -402,11 +412,12 @@ function WorkInputPage() {
       id: existingRecord?.id ?? createRecordId(),
       date,
       productWork,
-      carWork: isAbsenceRecord ? 'none' : carWork,
+      carWork,
       productPoint: recordCalculation.productPoint,
       carPoint: recordCalculation.carPoint,
       difference: recordCalculation.difference,
       absence: isAbsenceRecord,
+      absenceUnits: isAbsenceRecord ? absenceUnits : 0,
       vacationType: selectedVacationUsages
         ? getPrimaryVacationType(selectedVacationUsages)
         : 'none',
@@ -522,19 +533,19 @@ function WorkInputPage() {
           </span>
           <div>
             <h2 id="car-work-title">자동차부두</h2>
-            <span>{isAbsenceRecord ? '결근 처리 중' : '근무 형태 선택'}</span>
+            <span>근무 형태 선택</span>
           </div>
         </div>
         <div className="work-option-grid work-card-grid">
           {carOptions.map((option) => (
             <button
-              aria-pressed={selectedCarWork === option.value}
+              aria-pressed={carWork === option.value}
               className={
-                selectedCarWork === option.value
+                carWork === option.value
                   ? 'work-option work-card-option selected'
                   : 'work-option work-card-option'
               }
-              disabled={isAbsenceRecord || (option.value === 'product' && productWork === 'none')}
+              disabled={option.value === 'product' && productWork === 'none'}
               key={option.value}
               type="button"
               onClick={() => handleCarWorkSelect(option.value)}
@@ -584,10 +595,10 @@ function WorkInputPage() {
             ))}
           </div>
           <p className="vacation-selection-summary">
-            {selectedVacationTotal === requiredVacation
+            {selectedTreatmentTotal === requiredVacation
               ? '선택 완료'
               : `필요 ${formatVacationUsage(
-                  Math.max(requiredVacation - selectedVacationTotal, 0),
+                  Math.max(requiredVacation - selectedTreatmentTotal, 0),
                 )}일 남음`}
           </p>
         </section>
@@ -601,7 +612,17 @@ function WorkInputPage() {
             </span>
             <p>계산 결과</p>
           </div>
-          <strong>{isAbsenceRecord ? '결근' : formatDifference(recordCalculation.difference)}</strong>
+          <strong>
+            {formatDifference(
+              vacationUsages.unhyu > 0
+                ? -vacationUsages.unhyu
+                : isAutomaticUnhyuDeduction
+                  ? recordCalculation.difference
+                  : recordCalculation.difference > 0
+                    ? recordCalculation.difference
+                    : 0,
+            )}
+          </strong>
         </div>
         <dl className="work-result-grid">
           <div>
@@ -614,10 +635,10 @@ function WorkInputPage() {
           </div>
           <div>
             <dt>운휴 차이</dt>
-            <dd>{isAbsenceRecord ? '0' : formatDifference(recordCalculation.difference)}</dd>
+            <dd>{formatDifference(vacationUsages.unhyu > 0 ? -vacationUsages.unhyu : isAutomaticUnhyuDeduction ? recordCalculation.difference : 0)}</dd>
           </div>
         </dl>
-        {needsVacation && selectedVacationTotal > 0 ? (
+        {(selectedVacationTotal > 0 || absenceUnits > 0) ? (
           <div className="work-applied-summary">
             <span>적용 결과</span>
             <p>
@@ -633,6 +654,7 @@ function WorkInputPage() {
               {vacationUsages.birthday > 0
                 ? `생휴 -${formatVacationUsage(vacationUsages.birthday)}`
                 : ''}
+              {absenceUnits > 0 ? ` 결근 ${formatVacationUsage(absenceUnits)}회` : ''}
             </p>
           </div>
         ) : null}
@@ -663,7 +685,7 @@ function WorkInputPage() {
               ⚠️
             </span>
             <h2 id="absence-title">결근 처리</h2>
-            <p>결근은 휴가를 차감하지 않고 자동차부두는 없음으로 저장됩니다.</p>
+            <p>결근은 휴가 잔액을 차감하지 않으며 필요한 처리량과 조합할 수 있습니다.</p>
           </div>
           <button
             aria-pressed={isAbsenceRecord}
@@ -673,9 +695,9 @@ function WorkInputPage() {
                 : 'work-option work-card-option'
             }
             type="button"
-            onClick={() => setAbsence((currentValue) => !currentValue)}
+            onClick={handleAbsenceSelect}
           >
-            결근 처리
+            {absenceUnits > 0 ? `결근 ${formatVacationUsage(absenceUnits)}` : '결근 처리'}
           </button>
         </section>
       ) : null}

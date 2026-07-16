@@ -14,6 +14,7 @@ import {
 import { formatDateWithWeekday, monthKey, today } from '../../utils/date';
 import { getTotalUnhyu } from '../../utils/unhyu';
 import { getActualUnhyuChange } from '../../utils/vacationUsage';
+import { getRecordAbsenceUnits } from '../../utils/absence';
 
 const productWorkLabels: Record<ProductWork, string> = {
   none: '없음',
@@ -68,7 +69,10 @@ function HomePage() {
   const totalUnhyu = getTotalUnhyu(settings);
   const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
-  const absenceCount = monthlyRecords.filter((record) => record.absence).length;
+  const absenceCount = monthlyRecords.reduce(
+    (total, record) => total + getRecordAbsenceUnits(record),
+    0,
+  );
   const netUnhyu = monthlyRecords.reduce(
     (total, record) => total + getActualUnhyuChange(record),
     0,
@@ -82,11 +86,9 @@ function HomePage() {
       : '사용 완료'
     : '해당 없음';
   const todayRecordSummary = todayRecord
-    ? todayRecord.absence
-      ? `제품: ${productWorkLabels[todayRecord.productWork]} · 결근`
-      : `제품: ${productWorkLabels[todayRecord.productWork]} · 자동차: ${
-          carWorkLabels[todayRecord.carWork]
-        }`
+    ? `제품: ${productWorkLabels[todayRecord.productWork]} · 자동차: ${
+        carWorkLabels[todayRecord.carWork]
+      }${getRecordAbsenceUnits(todayRecord) > 0 ? ` · 결근 ${getRecordAbsenceUnits(todayRecord)}` : ''}`
     : '';
   const netUnhyuTone = getUnhyuToneClassName(netUnhyu);
 
