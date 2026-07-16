@@ -4,7 +4,14 @@ import { compactVacationUsages } from '../utils/vacationUsage';
 const STORAGE_KEY = 'unhyu-manager-records';
 
 function readRecords(): DailyRecord[] {
-  const storedValue = localStorage.getItem(STORAGE_KEY);
+  let storedValue: string | null;
+
+  try {
+    storedValue = localStorage.getItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('[Storage] Unable to read records:', error);
+    return [];
+  }
 
   if (!storedValue) {
     return [];

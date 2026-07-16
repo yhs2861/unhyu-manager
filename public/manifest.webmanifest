@@ -6,8 +6,9 @@
   "background_color": "#f8fafc",
   "display": "standalone",
   "orientation": "portrait",
-  "scope": ".",
-  "start_url": ".",
+  "id": "/unhyu-manager/",
+  "scope": "/unhyu-manager/",
+  "start_url": "/unhyu-manager/#/",
   "lang": "ko",
   "icons": [
     {

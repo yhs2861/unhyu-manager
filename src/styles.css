@@ -2722,3 +2722,19 @@ h3 {
     padding-top: 40px;
   }
 }
+/* A last-resort rendering fallback; normal application screens never use this class. */
+.app-error {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.app-error h1,
+.app-error p {
+  margin: 0;
+}
