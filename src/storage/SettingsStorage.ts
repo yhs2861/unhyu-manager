@@ -36,7 +36,14 @@ function normalizeSettings(value: Partial<AppSettings>): AppSettings {
 }
 
 export function getSettings() {
-  const storedValue = localStorage.getItem(STORAGE_KEY);
+  let storedValue: string | null;
+
+  try {
+    storedValue = localStorage.getItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('[Storage] Unable to read settings:', error);
+    return defaultSettings;
+  }
 
   if (!storedValue) {
     return defaultSettings;
@@ -44,7 +51,10 @@ export function getSettings() {
 
   try {
     const parsedValue = JSON.parse(storedValue);
-    return normalizeSettings(parsedValue);
+    if (!parsedValue || typeof parsedValue !== 'object' || Array.isArray(parsedValue)) {
+      return defaultSettings;
+    }
+    return normalizeSettings(parsedValue as Partial<AppSettings>);
   } catch {
     return defaultSettings;
   }

@@ -3,7 +3,14 @@ import type { MonthlySummary } from '../types/monthlySummary';
 const STORAGE_KEY = 'unhyu-manager-monthly-summaries';
 
 function readSummaries(): MonthlySummary[] {
-  const storedValue = localStorage.getItem(STORAGE_KEY);
+  let storedValue: string | null;
+
+  try {
+    storedValue = localStorage.getItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('[Storage] Unable to read summaries:', error);
+    return [];
+  }
 
   if (!storedValue) {
     return [];
