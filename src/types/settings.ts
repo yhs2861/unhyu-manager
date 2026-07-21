@@ -5,6 +5,8 @@ export interface AppSettings {
   firstHalfAnnual: number;
   secondHalfAnnual: number;
   specialVacation: number;
+  birthdayCalendarType: 'solar' | 'lunar';
   birthdayMonth: number;
   birthdayDay: number;
+  birthdayLeapMonth: boolean;
 }

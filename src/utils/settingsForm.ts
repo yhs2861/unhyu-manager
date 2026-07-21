@@ -1,6 +1,9 @@
 import type { AppSettings } from '../types/settings';
 
-export type NumericSettingsKey = Exclude<keyof AppSettings, 'isSetupCompleted'>;
+export type NumericSettingsKey = Exclude<
+  keyof AppSettings,
+  'isSetupCompleted' | 'birthdayCalendarType' | 'birthdayLeapMonth'
+>;
 
 export type SettingsFormState = Record<NumericSettingsKey, string>;
 

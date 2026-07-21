@@ -9,8 +9,10 @@ const defaultSettings: AppSettings = {
   firstHalfAnnual: 6,
   secondHalfAnnual: 6,
   specialVacation: 1,
+  birthdayCalendarType: 'solar',
   birthdayMonth: 1,
   birthdayDay: 1,
+  birthdayLeapMonth: false,
 };
 
 function normalizeNumber(value: number | undefined, fallback: number) {
@@ -30,8 +32,10 @@ function normalizeSettings(value: Partial<AppSettings>): AppSettings {
     firstHalfAnnual: normalizeNumber(value.firstHalfAnnual, defaultSettings.firstHalfAnnual),
     secondHalfAnnual: normalizeNumber(value.secondHalfAnnual, defaultSettings.secondHalfAnnual),
     specialVacation: normalizeNumber(value.specialVacation, defaultSettings.specialVacation),
+    birthdayCalendarType: value.birthdayCalendarType === 'lunar' ? 'lunar' : 'solar',
     birthdayMonth: clamp(normalizeNumber(value.birthdayMonth, defaultSettings.birthdayMonth), 0, 12),
     birthdayDay: clamp(normalizeNumber(value.birthdayDay, defaultSettings.birthdayDay), 0, 31),
+    birthdayLeapMonth: value.birthdayLeapMonth === true,
   };
 }
 

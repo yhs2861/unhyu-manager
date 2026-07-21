@@ -280,26 +280,31 @@ function WorkInputPage() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
-    setExistingRecord(getRecordByDate(date));
-  }, [date]);
-
-  useEffect(() => {
-    setProductWork(existingRecord?.productWork ?? 'none');
-    setCarWork(existingRecord?.carWork ?? 'none');
-    setAbsenceUnits(existingRecord ? getRecordAbsenceUnits(existingRecord) : 0);
+    const record = getRecordByDate(date);
+    setExistingRecord(record);
+    setProductWork(record?.productWork ?? 'none');
+    setCarWork(record?.carWork ?? 'none');
+    setAbsenceUnits(record ? getRecordAbsenceUnits(record) : 0);
     setVacationUsages(
-      existingRecord ? getRecordVacationUsages(existingRecord) : createEmptyVacationUsages(),
+      record ? getRecordVacationUsages(record) : createEmptyVacationUsages(),
     );
-    setMemo(existingRecord?.memo ?? '');
-  }, [existingRecord]);
+    setMemo(record?.memo ?? '');
+  }, [date]);
 
   const settings = getSettings();
   const calculation = useMemo(() => calculate(productWork, carWork), [productWork, carWork]);
-  const recordCalculation = calculation;
-  const canMarkAbsence =
-    productWork === 'dayNight' && carWork !== 'overtime' &&
+  const isSingleProductWork = productWork === 'day' || productWork === 'night';
+  const isDayNightProductWork = productWork === 'dayNight';
+  const canMarkSingleAbsence = isSingleProductWork;
+  const canMarkDayNightAbsence =
+    isDayNightProductWork && carWork !== 'overtime' &&
     (carWork === 'none' || carWork === 'day' || carWork === 'product');
+  const canMarkAbsence = canMarkSingleAbsence || canMarkDayNightAbsence;
   const isAbsenceRecord = absenceUnits > 0 && canMarkAbsence;
+  const isSingleAbsenceRecord = absenceUnits > 0 && canMarkSingleAbsence;
+  const recordCalculation = isSingleAbsenceRecord
+    ? { ...calculation, difference: 0 }
+    : calculation;
   const isAutomaticUnhyuDeduction =
     productWork === 'dayNight' && carWork === 'overtime' && recordCalculation.difference < 0;
   const needsVacation = recordCalculation.difference < 0 && !isAutomaticUnhyuDeduction;
@@ -346,13 +351,33 @@ function WorkInputPage() {
       return;
     }
 
+    const isNextSingleProductWork = nextProductWork === 'day' || nextProductWork === 'night';
+    const nextAbsenceUnits =
+      nextProductWork === 'none'
+        ? 0
+        : isNextSingleProductWork
+          ? Math.min(absenceUnits, 1)
+          : absenceUnits;
     const nextCarWork =
-      nextProductWork === 'none' && carWork === 'product' ? 'none' : carWork;
+      (nextProductWork === 'none' && carWork === 'product') ||
+      (isNextSingleProductWork && nextAbsenceUnits > 0)
+        ? 'none'
+        : carWork;
     setProductWork(nextProductWork);
-    setVacationUsages(getDefaultVacationUsages(nextProductWork, nextCarWork));
+    setCarWork(nextCarWork);
+    setAbsenceUnits(nextAbsenceUnits);
+    setVacationUsages(
+      isNextSingleProductWork && nextAbsenceUnits > 0
+        ? createEmptyVacationUsages()
+        : getDefaultVacationUsages(nextProductWork, nextCarWork),
+    );
   };
 
   const handleCarWorkSelect = (nextCarWork: CarWork) => {
+    if (isSingleAbsenceRecord) {
+      return;
+    }
+
     if (nextCarWork === carWork) {
       return;
     }
@@ -378,6 +403,17 @@ function WorkInputPage() {
 
   const handleAbsenceSelect = () => {
     if (!canMarkAbsence) return;
+    if (canMarkSingleAbsence) {
+      if (absenceUnits > 0) {
+        setAbsenceUnits(0);
+        return;
+      }
+
+      setAbsenceUnits(1);
+      setCarWork('none');
+      setVacationUsages(createEmptyVacationUsages());
+      return;
+    }
     if (carWork === 'product') {
       setAbsenceUnits((units) => (units > 0 ? 0 : 1));
       return;
@@ -533,7 +569,7 @@ function WorkInputPage() {
           </span>
           <div>
             <h2 id="car-work-title">자동차부두</h2>
-            <span>근무 형태 선택</span>
+            <span>{isSingleAbsenceRecord ? '결근 처리 중' : '근무 형태 선택'}</span>
           </div>
         </div>
         <div className="work-option-grid work-card-grid">
@@ -545,7 +581,10 @@ function WorkInputPage() {
                   ? 'work-option work-card-option selected'
                   : 'work-option work-card-option'
               }
-              disabled={option.value === 'product' && productWork === 'none'}
+              disabled={
+                isSingleAbsenceRecord ||
+                (option.value === 'product' && productWork === 'none')
+              }
               key={option.value}
               type="button"
               onClick={() => handleCarWorkSelect(option.value)}
@@ -685,7 +724,11 @@ function WorkInputPage() {
               ⚠️
             </span>
             <h2 id="absence-title">결근 처리</h2>
-            <p>결근은 휴가 잔액을 차감하지 않으며 필요한 처리량과 조합할 수 있습니다.</p>
+            <p>
+              {canMarkSingleAbsence
+                ? '결근은 자동차 근무와 휴가를 적용하지 않고 1회로 처리합니다.'
+                : '결근은 휴가 잔액을 차감하지 않으며 필요한 처리량과 조합할 수 있습니다.'}
+            </p>
           </div>
           <button
             aria-pressed={isAbsenceRecord}

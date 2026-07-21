@@ -2037,10 +2037,70 @@ h3 {
 }
 
 .settings-field input:focus,
+.settings-calendar-options button:focus-visible,
+.settings-leap-month input:focus-visible,
 .settings-save-button:focus-visible,
 .settings-reset-button:focus-visible {
   outline: 3px solid #bfdbfe;
   outline-offset: 2px;
+}
+
+.settings-birthday-calendar {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-soft);
+  background: #f8fafc;
+}
+
+.settings-birthday-calendar > span,
+.settings-leap-month span {
+  color: #10201d;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.settings-calendar-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.settings-calendar-options button {
+  min-height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #475569;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 900;
+}
+
+.settings-calendar-options button.selected {
+  border-color: #7dd3fc;
+  color: #075985;
+  background: #e0f2fe;
+}
+
+.settings-leap-month {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-soft);
+  background: #f8fafc;
+}
+
+.settings-leap-month input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #0284c7;
 }
 
 .settings-actions {

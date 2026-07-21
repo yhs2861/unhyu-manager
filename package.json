@@ -1,7 +1,7 @@
 {
   "name": "unhyu-manager",
   "private": true,
-  "version": "2.2.12",
+  "version": "2.2.13",
   "homepage": "https://yhs2861.github.io/unhyu-manager/",
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@fullstackfamily/manseryeok": "^1.0.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.1"

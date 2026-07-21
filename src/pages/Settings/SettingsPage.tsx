@@ -96,6 +96,22 @@ function SettingsPage() {
     showSavedMessage();
   };
 
+  const handleBirthdayCalendarTypeSelect = (
+    birthdayCalendarType: AppSettings['birthdayCalendarType'],
+  ) => {
+    setSettings((previousSettings) => ({
+      ...previousSettings,
+      birthdayCalendarType,
+    }));
+  };
+
+  const handleBirthdayLeapMonthChange = (birthdayLeapMonth: boolean) => {
+    setSettings((previousSettings) => ({
+      ...previousSettings,
+      birthdayLeapMonth,
+    }));
+  };
+
   const handleReset = () => {
     const defaultSettings = saveSettings({
       ...resetSettings(),
@@ -244,6 +260,27 @@ function SettingsPage() {
           </div>
         </div>
         <div className="settings-panel settings-panel-compact">
+          <div className="settings-birthday-calendar">
+            <span>생일 기준</span>
+            <div className="settings-calendar-options" role="group" aria-label="생일 기준">
+              <button
+                aria-pressed={settings.birthdayCalendarType === 'solar'}
+                className={settings.birthdayCalendarType === 'solar' ? 'selected' : ''}
+                type="button"
+                onClick={() => handleBirthdayCalendarTypeSelect('solar')}
+              >
+                양력
+              </button>
+              <button
+                aria-pressed={settings.birthdayCalendarType === 'lunar'}
+                className={settings.birthdayCalendarType === 'lunar' ? 'selected' : ''}
+                type="button"
+                onClick={() => handleBirthdayCalendarTypeSelect('lunar')}
+              >
+                음력
+              </button>
+            </div>
+          </div>
           {vacationSettingFields.map((field) => (
             <label className="settings-field" key={field.key}>
               <span>{field.label}</span>
@@ -260,6 +297,16 @@ function SettingsPage() {
               />
             </label>
           ))}
+          {settings.birthdayCalendarType === 'lunar' ? (
+            <label className="settings-leap-month">
+              <input
+                checked={settings.birthdayLeapMonth}
+                type="checkbox"
+                onChange={(event) => handleBirthdayLeapMonthChange(event.target.checked)}
+              />
+              <span>윤달</span>
+            </label>
+          ) : null}
         </div>
       </section>
 
