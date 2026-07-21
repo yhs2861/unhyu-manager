@@ -77,6 +77,7 @@ function HomePage() {
     (total, record) => total + getActualUnhyuChange(record),
     0,
   );
+  const monthOpeningUnhyu = Math.round((totalUnhyu - netUnhyu) * 10) / 10;
   const annualVacation = getCurrentAnnualVacationRemaining(settings, todayDate);
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);
@@ -113,7 +114,7 @@ function HomePage() {
         <span className="home-card-content">
           <span className="home-card-label">총 운휴</span>
           <strong>{formatDayValue(totalUnhyu)}</strong>
-          <span>이월 {formatSignedDayValue(settings.carryOverUnhyu)} 포함</span>
+          <span>이월 {formatSignedDayValue(monthOpeningUnhyu)} 포함</span>
         </span>
       </button>
 
