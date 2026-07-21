@@ -2210,11 +2210,61 @@ h3 {
   clip-path: inset(50%);
 }
 
-.settings-message {
-  margin: 0;
-  color: #16a34a;
+.settings-message-overlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  pointer-events: none;
+}
+
+.settings-message-popup {
+  display: grid;
+  width: min(280px, calc(100vw - 40px));
+  gap: 9px;
+  justify-items: center;
+  border: 1px solid #dcfce7;
+  border-radius: 20px;
+  padding: 18px 20px;
+  color: #166534;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgb(15 23 42 / 20%);
+  font-size: 0.95rem;
   font-weight: 900;
   text-align: center;
+  animation: settings-message-pop 2.2s ease both;
+}
+
+.settings-message-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #16a34a;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@keyframes settings-message-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  8%,
+  88% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 }
 
 .app-info-card {

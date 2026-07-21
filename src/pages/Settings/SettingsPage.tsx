@@ -370,9 +370,14 @@ function SettingsPage() {
       </section>
 
       {message ? (
-        <p className="settings-message" role="status">
-          {message}
-        </p>
+        <div className="settings-message-overlay" role="status">
+          <div className="settings-message-popup">
+            <span className="settings-message-icon" aria-hidden="true">
+              ✓
+            </span>
+            <span>{message}</span>
+          </div>
+        </div>
       ) : null}
 
       <section className="app-info-card" aria-label="앱 정보">
