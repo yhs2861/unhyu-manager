@@ -113,6 +113,14 @@ function SettingsPage() {
   };
 
   const handleReset = () => {
+    const shouldReset = window.confirm(
+      '설정값을 초기화하면 운휴와 휴가 설정이 기본값으로 변경됩니다.\n근무 기록은 유지됩니다.\n정말 초기화하시겠습니까?',
+    );
+
+    if (!shouldReset) {
+      return;
+    }
+
     const defaultSettings = saveSettings({
       ...resetSettings(),
       isSetupCompleted: true,

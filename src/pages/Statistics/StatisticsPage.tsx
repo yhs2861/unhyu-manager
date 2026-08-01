@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import MonthNavigator from '../../components/MonthNavigator';
 import { getRecords } from '../../storage/LocalStorage';
+import { getSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { monthKey, today } from '../../utils/date';
+import { getMonthClosingUnhyu } from '../../utils/unhyuBalance';
 import {
   getActualUnhyuChange,
   getRecordVacationUsages,
@@ -94,6 +96,7 @@ function getRecordChangeLabel(record: DailyRecord) {
 
 function StatisticsPage() {
   const records = getRecords();
+  const settings = getSettings();
   const todayMonth = monthKey(today());
   const [selectedMonth, setSelectedMonth] = useState(todayMonth);
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
@@ -128,6 +131,7 @@ function StatisticsPage() {
       .reduce((total, actualUnhyuChange) => total + actualUnhyuChange, 0),
   );
   const netUnhyu = unhyuIncrease - unhyuDecrease;
+  const totalUnhyu = getMonthClosingUnhyu(settings, records, selectedMonth);
   const unhyuUsageRecords = monthlyRecords.filter(hasCountableUnhyuUsage);
   const annualUseCount = monthlyRecords.filter((record) => hasVacationUsage(record, 'ilhyu')).length;
   const specialUseCount = monthlyRecords.filter((record) =>
@@ -223,6 +227,10 @@ function StatisticsPage() {
           <div>
             <dt>순 운휴</dt>
             <dd className={getToneClassName(netUnhyu)}>{formatSignedDayValue(netUnhyu)}</dd>
+          </div>
+          <div>
+            <dt>총 운휴</dt>
+            <dd>{formatDayValue(totalUnhyu)}</dd>
           </div>
         </dl>
       </section>

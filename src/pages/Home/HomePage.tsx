@@ -12,7 +12,7 @@ import {
   isBirthdayVacationMonth,
 } from '../../utils/birthdayVacation';
 import { formatDateWithWeekday, monthKey, today } from '../../utils/date';
-import { getTotalUnhyu } from '../../utils/unhyu';
+import { getMonthOpeningUnhyu, getUnhyuBalanceAtDate } from '../../utils/unhyuBalance';
 import { getActualUnhyuChange } from '../../utils/vacationUsage';
 import { getRecordAbsenceUnits } from '../../utils/absence';
 
@@ -66,7 +66,8 @@ function HomePage() {
   const currentMonth = monthKey(todayDate);
   const todayRecord = records.find((record) => record.date === todayDate);
   const monthlyRecords = records.filter((record) => monthKey(record.date) === currentMonth);
-  const totalUnhyu = getTotalUnhyu(settings);
+  const totalUnhyu = getUnhyuBalanceAtDate(settings, records, todayDate);
+  const monthOpeningUnhyu = getMonthOpeningUnhyu(settings, records, currentMonth);
   const productTotal = monthlyRecords.reduce((total, record) => total + record.productPoint, 0);
   const carTotal = monthlyRecords.reduce((total, record) => total + record.carPoint, 0);
   const absenceCount = monthlyRecords.reduce(
@@ -77,7 +78,6 @@ function HomePage() {
     (total, record) => total + getActualUnhyuChange(record),
     0,
   );
-  const monthOpeningUnhyu = Math.round((totalUnhyu - netUnhyu) * 10) / 10;
   const annualVacation = getCurrentAnnualVacationRemaining(settings, todayDate);
   const isBirthdayMonth = isBirthdayVacationMonth(settings, todayDate);
   const birthdayVacationRemaining = getBirthdayVacationRemaining(settings, records, todayDate);
