@@ -28,7 +28,7 @@ type SettingsField = {
 };
 
 const settingsFields: SettingsField[] = [
-  { key: 'currentUnhyu', label: '현재 운휴', step: '0.5' },
+  { key: 'currentUnhyu', label: '변동 운휴', step: '0.5' },
   { key: 'carryOverUnhyu', label: '이월 운휴', step: '0.5' },
   { key: 'firstHalfAnnual', label: '상반기 일휴', step: '1' },
   { key: 'secondHalfAnnual', label: '하반기 일휴', step: '1' },

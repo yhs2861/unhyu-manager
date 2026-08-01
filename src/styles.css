@@ -2575,6 +2575,28 @@ h3 {
   line-height: 1;
 }
 
+.statistics-summary-heading > div {
+  flex: 1 1 auto;
+}
+
+.statistics-opening-unhyu {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin-left: auto;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  color: #166534;
+  background: #dcfce7;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .statistics-summary-grid,
 .statistics-line-list {
   display: grid;

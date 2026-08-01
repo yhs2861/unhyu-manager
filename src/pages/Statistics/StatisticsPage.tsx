@@ -4,7 +4,7 @@ import { getRecords } from '../../storage/LocalStorage';
 import { getSettings } from '../../storage/SettingsStorage';
 import type { DailyRecord } from '../../types/dailyRecord';
 import { monthKey, today } from '../../utils/date';
-import { getMonthClosingUnhyu } from '../../utils/unhyuBalance';
+import { getMonthClosingUnhyu, getMonthOpeningUnhyu } from '../../utils/unhyuBalance';
 import {
   getActualUnhyuChange,
   getRecordVacationUsages,
@@ -131,6 +131,7 @@ function StatisticsPage() {
       .reduce((total, actualUnhyuChange) => total + actualUnhyuChange, 0),
   );
   const netUnhyu = unhyuIncrease - unhyuDecrease;
+  const openingUnhyu = getMonthOpeningUnhyu(settings, records, selectedMonth);
   const totalUnhyu = getMonthClosingUnhyu(settings, records, selectedMonth);
   const unhyuUsageRecords = monthlyRecords.filter(hasCountableUnhyuUsage);
   const annualUseCount = monthlyRecords.filter((record) => hasVacationUsage(record, 'ilhyu')).length;
@@ -172,7 +173,7 @@ function StatisticsPage() {
       />
 
       <section className="statistics-card" aria-label="이번 달 요약">
-        <div className="statistics-card-heading">
+        <div className="statistics-card-heading statistics-summary-heading">
           <span className="section-icon-badge month" aria-hidden="true">
             📆
           </span>
@@ -182,6 +183,9 @@ function StatisticsPage() {
               순 운휴 {formatSignedDayValue(netUnhyu)}
             </strong>
           </div>
+          <span className="statistics-opening-unhyu">
+            이월 {formatDayValue(openingUnhyu)}
+          </span>
         </div>
         <dl className="statistics-summary-grid">
           <div className="product">
